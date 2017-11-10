@@ -1,0 +1,71 @@
+# This YAML file describes your package. Stack will automatically generate a
+# Cabal file when you run `stack build`. See the hpack website for help with
+# this file: <https://github.com/sol/hpack>.
+benchmarks:
+  probe-benchmarks:
+    dependencies:
+    - base
+    - probe
+    - criterion
+    ghc-options:
+    - -rtsopts
+    - -threaded
+    - -with-rtsopts=-N
+    main: Main.hs
+    source-dirs: benchmark
+category: Concurrency
+description: Probe is an Haskell implementation of Concurrent Workers
+executables:
+  probe:
+    dependencies:
+    - base
+    - probe
+    ghc-options:
+    - -rtsopts
+    - -threaded
+    - -with-rtsopts=-N
+    main: Main.hs
+    source-dirs: executable
+extra-source-files:
+- CHANGELOG.md
+- LICENSE.md
+- package.yaml
+- README.md
+- stack.yaml
+ghc-options: -Wall
+github: zeroed/probe
+library:
+  dependencies:
+    - HTTP
+    - base
+    - bytestring
+    - containers
+    - http-client
+    - http-client-tls
+    - http-conduit
+    - http-types
+    - mtl
+    - network-uri
+    - regex-posix
+    - stm
+    - tagsoup
+  source-dirs: library
+license: MIT
+author: Edoardo Rossi <edd.rossi@gmail.com>
+maintainer: Edoardo Rossi <edd.rossi@gmail.com>
+name: probe
+synopsis: Concurrent Workers
+tests:
+  probe-test-suite:
+    dependencies:
+    - base
+    - probe
+    - tasty
+    - tasty-hspec
+    ghc-options:
+    - -rtsopts
+    - -threaded
+    - -with-rtsopts=-N
+    main: Main.hs
+    source-dirs: test-suite
+version: '0.0.1'

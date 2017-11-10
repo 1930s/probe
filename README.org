@@ -1,3 +1,0 @@
-* Probe
-
-Concurrent Workers in Haskell
