@@ -6,6 +6,8 @@
 -- | Probe - concurrent workers for URLs (parallel) checking
 module Probe (main) where
 
+import LinkStruct
+
 -- import Control.Arrow
 import Control.Concurrent ( forkIO
                           -- , threadDelay
@@ -386,19 +388,6 @@ linksFilter tags = map (takeWhile (~/= TagClose ("a" :: String))) (sections (~==
 -- [(True,"http://haskell.org","here",True),(True,"http://wiki.haskell.org","there",True)]
 -- λ> map (\t -> LinkStruct (isTagOpenName "a" (t !! 0)) (fromAttrib "href" (t !! 0)) (fromTagText (t !! 1)) (isTagCloseName "a" (t !! 2))) (sections (~== "<a>") s)
 -- [[[http://haskell.org][here]],[[http://wiki.haskell.org][there]]]
-
-data LinkStruct = LinkStruct { index :: Int
-                             , href :: String
-                             , text :: String
-                             , tagOpenA :: Bool
-                             , tagCloseA :: Bool
-                             }
-
-linkStructSimple :: String -> String -> LinkStruct
-linkStructSimple h t = LinkStruct 0 h t True True
-
-instance Show LinkStruct where
-    show (LinkStruct _ h t _ _) = "[[" ++ h ++ "][" ++ t ++"]]"
 
 dequote :: String -> String
 dequote ('\"':xs) | last xs == '\"' = init xs
