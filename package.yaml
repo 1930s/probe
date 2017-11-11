@@ -36,19 +36,36 @@ ghc-options: -Wall
 github: zeroed/probe
 library:
   dependencies:
-    - HTTP
-    - base
-    - bytestring
-    - containers
-    - http-client
-    - http-client-tls
-    - http-conduit
-    - http-types
-    - mtl
-    - network-uri
-    - regex-posix
-    - stm
-    - tagsoup
+    # https://hackage.haskell.org/package/HTTP
+    - HTTP >= 4000.3.7
+    # https://hackage.haskell.org/package/base
+    - base >= 4.9.1.0
+    # https://hackage.haskell.org/package/bytestring
+    - bytestring >= 0.10.8.1
+    # https://hackage.haskell.org/package/containers
+    # https://github.com/haskell/containers
+    - containers >= 0.5.7.1
+    # https://hackage.haskell.org/package/http-client
+    # https://github.com/snoyberg/http-client
+    - http-client >= 0.5.7.0
+    # https://hackage.haskell.org/package/http-client-tls
+    - http-client-tls >= 0.3.5.1
+    # https://hackage.haskell.org/package/http-conduit
+    - http-conduit >= 2.2.3.2
+    # https://hackage.haskell.org/package/http-types
+    - http-types >= 0.9.1
+    # https://hackage.haskell.org/package/mtl
+    # https://github.com/haskell/mtl
+    - mtl >= 2.2.1
+    # https://hackage.haskell.org/package/network-uri
+    - network-uri >= 2.6.1.0
+    # https://hackage.haskell.org/package/regex-posix
+    - regex-posix >= 0.95.2
+    # https://hackage.haskell.org/package/stm
+    - stm >= 2.4.4.1
+    # https://hackage.haskell.org/package/tagsoup
+    # https://github.com/ndmitchell/tagsoup
+    - tagsoup >= 0.14.1
   source-dirs: library
 license: MIT
 author: Edoardo Rossi <edd.rossi@gmail.com>
