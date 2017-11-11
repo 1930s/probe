@@ -1,4 +1,4 @@
-module Options where
+module Option where
 
 -- http://hackage.haskell.org/package/base-4.10.0.0/docs/System-Console-GetOpt.html#v:getOpt
 import System.Console.GetOpt
