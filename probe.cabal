@@ -45,6 +45,9 @@ library
     , stm >= 2.4.4.1
     , tagsoup >= 0.14.1
   exposed-modules:
+      LinkStruct
+      Network
+      Options
       Probe
   default-language: Haskell2010
 
