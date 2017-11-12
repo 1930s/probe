@@ -223,3 +223,32 @@
 -- RequireOrder	               no option processing after first non-option
 -- Permute                     freely intersperse options and non-options
 -- ReturnInOrder (String -> a) wrap non-options into options
+--
+-- | The HTTP package
+-- http://hackage.haskell.org/package/HTTP
+-- https://github.com/haskell/HTTP
+-- http://hackage.haskell.org/package/HTTP-4000.3.7/docs/Network-HTTP.html
+-- http://hackage.haskell.org/package/HTTP-4000.3.7/docs/Network-Stream.html#t:Result
+-- import Network.HTTP hiding (Done)
+-- import Network.Stream ( Result )
+--
+-- | The http-streams package
+-- http://hackage.haskell.org/package/http-streams
+-- https://github.com/afcowie/http-streams/
+-- http://hackage.haskell.org/package/http-streams-0.8.5.3/docs/Network-Http-Client.html
+--
+-- | The http-client package
+-- http://hackage.haskell.org/package/http-client
+-- http://hackage.haskell.org/package/http-client-tls
+-- https://github.com/snoyberg/http-client
+-- Tutorial:
+-- https://haskell-lang.org/library/http-client
+
+-- https://hackage.haskell.org/package/http-client-0.5.7.0/docs/Network-HTTP-Client.html#v:responseStatus
+--
+-- httpLbs :: Request -> Manager -> IO (Response ByteString)
+-- A convenience wrapper around withResponse which reads in the entire response
+-- body and immediately closes the connection. Note that this function performs
+-- fully strict I/O, and only uses a lazy ByteString in its response for memory
+-- efficiency. If you are anticipating a large response body, you are encouraged
+-- to use withResponse and brRead instead.
