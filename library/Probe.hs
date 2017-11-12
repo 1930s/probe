@@ -1,5 +1,5 @@
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+-- {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE LambdaCase #-}
 
@@ -14,6 +14,9 @@ import Options
 import Control.Concurrent ( forkIO
                           -- , threadDelay
                           )
+-- http://hackage.haskell.org/package/stm
+-- http://hackage.haskell.org/package/stm-2.4.4.1/docs/Control-Concurrent-STM.html
+-- http://hackage.haskell.org/package/stm-2.4.4.1/docs/Control-Concurrent-STM-TChan.html
 import Control.Concurrent.STM
 import Control.Exception ( finally
                          , catch
@@ -45,37 +48,22 @@ import System.Exit ( exitSuccess
                    )
 import System.IO (hFlush, hPutStrLn, stderr, stdout)
 import Text.Printf (printf)
--- import qualified Data.ByteString as B
-import qualified Data.ByteString.Lazy.Char8 as L8
+-- http://hackage.haskell.org/package/containers
+-- http://hackage.haskell.org/package/containers-0.5.10.2/docs/Data-Set.html
 import qualified Data.Set as S
--- | The HTTP package
--- http://hackage.haskell.org/package/HTTP
--- https://github.com/haskell/HTTP
--- http://hackage.haskell.org/package/HTTP-4000.3.7/docs/Network-HTTP.html
--- http://hackage.haskell.org/package/HTTP-4000.3.7/docs/Network-Stream.html#t:Result
--- import Network.HTTP hiding (Done)
--- import Network.Stream ( Result )
---
--- | The http-streams package
--- http://hackage.haskell.org/package/http-streams
--- https://github.com/afcowie/http-streams/
--- http://hackage.haskell.org/package/http-streams-0.8.5.3/docs/Network-Http-Client.html
---
--- | The http-client package
+-- https://hackage.haskell.org/package/bytestring
+-- https://hackage.haskell.org/package/bytestring-0.10.8.2/docs/Data-ByteString-Lazy.html
+import qualified Data.ByteString.Lazy.Char8 as L8
+-- https://hackage.haskell.org/package/bytestring-0.10.8.1/docs/Data-ByteString.html
+import qualified Data.ByteString as BS
+-- http://hackage.haskell.org/package/bytestring-0.10.8.2/docs/Data-ByteString-Lazy-Char8.html#v:pack
+-- import qualified Data.ByteString.Lazy.Char8 as C
+-- http://hackage.haskell.org/package/bytestring-0.10.8.2/docs/Data-ByteString-Char8.html#v:pack
+import qualified Data.ByteString.Char8 as C
 -- http://hackage.haskell.org/package/http-client
 -- http://hackage.haskell.org/package/http-client-tls
 -- https://github.com/snoyberg/http-client
--- Tutorial:
--- https://haskell-lang.org/library/http-client
 import Network.HTTP.Simple ( Response )
--- https://hackage.haskell.org/package/http-client-0.5.7.0/docs/Network-HTTP-Client.html#v:responseStatus
---
--- httpLbs :: Request -> Manager -> IO (Response ByteString)
--- A convenience wrapper around withResponse which reads in the entire response
--- body and immediately closes the connection. Note that this function performs
--- fully strict I/O, and only uses a lazy ByteString in its response for memory
--- efficiency. If you are anticipating a large response body, you are encouraged
--- to use withResponse and brRead instead.
 import Network.HTTP.Client ( responseStatus
                            , responseBody
                            , Manager
@@ -90,51 +78,20 @@ import Network.HTTP.Client ( responseStatus
                            , responseCookieJar
                            )
 import Network.HTTP.Client.TLS
--- import Data.Aeson (Value)
--- import qualified Data.ByteString.Char8 as S8
--- import qualified Data.Yaml             as Yaml
--- import qualified Network.HTTP as H
--- import qualified Network.HTTP.Base as N
--- import Network.HTTP.Headers
 -- http://hackage.haskell.org/package/http-types-0.9.1/docs/Network-HTTP-Types-Header.html#t:ResponseHeaders
 -- http://hackage.haskell.org/package/http-types-0.9.1/docs/Network-HTTP-Types-Header.html#t:Header
 import Network.HTTP.Types.Header
 -- import qualified Network.HTTP.Client.TLS as T
 -- https://hackage.haskell.org/package/http-types
 import Network.HTTP.Types.Status (statusCode)
-
 -- https://hackage.haskell.org/package/regex-posix
 -- https://hackage.haskell.org/package/regex-posix-0.95.2/docs/Text-Regex-Posix.html
 -- https://wiki.haskell.org/Regex_Posix
 import Text.Regex.Posix
 
--- https://hackage.haskell.org/package/bytestring-0.10.8.1/docs/Data-ByteString.html
-import qualified Data.ByteString as BS
-
--- http://hackage.haskell.org/package/bytestring-0.10.8.2/docs/Data-ByteString-Lazy-Char8.html#v:pack
--- import qualified Data.ByteString.Lazy.Char8 as C
--- http://hackage.haskell.org/package/bytestring-0.10.8.2/docs/Data-ByteString-Char8.html#v:pack
-import qualified Data.ByteString.Char8 as C
-
 -- https://hackage.haskell.org/package/tagsoup
 -- https://github.com/ndmitchell/tagsoup
 import Text.HTML.TagSoup
-
-type URL = L8.ByteString
-
-data Task = Check URL | Done
-  deriving (Show)
-
-printReaderContent :: ReaderT String IO ()
-printReaderContent = do
-    content <- ask
-    liftIO $ putStrLn ("The URL Checker: " ++ content)
-
--- printOrNot :: (MonadIO m, MonadReader Options m) => String -> m ()
-printOrNot :: String -> ReaderT Options IO ()
-printOrNot msg = do
-    opts <- ask
-    when (optVerbose opts) $ liftIO $ putStrLn msg
 
 main :: IO ()
 {-# ANN main ("HLint: ignore Use let" :: String) #-}
@@ -193,35 +150,12 @@ forkTimes k alive act =
     `finally`
     atomically (modifyTVar_ alive (subtract 1))
 
-printBadLinks :: TChan String -> IO ()
-printBadLinks c =
-  forever $ atomically (readTChan c) >>= (\s -> putStrLn $ "badLink: " ++ s) >> hFlush stdout
-
-printGoodLinks :: TChan String -> IO ()
-printGoodLinks c =
-  forever $ atomically (readTChan c) >>= (\s -> putStrLn $ "- " ++ s) >> hFlush stdout
-
 -- waitFor function uses 'check', which calls 'retry' if its argument evaluates
 -- to False.
 waitFor :: TVar Int -> IO ()
 waitFor alive = atomically $ do
   count <- readTVar alive
   check (count == 0)
-
-
-printLinksOrgMode :: (Foldable t1) => t3 -> t2 -> t1 String -> Options -> IO ()
-printLinksOrgMode _u _r tl o =
-    mapM_ pf tl
-      where pf :: String -> IO ()
-            pf s = if optErrors o
-                     then when (isError $ take 6 s) $ putStrLn s
-                   else putStrLn s
-
-errorPattern :: L8.ByteString
-errorPattern = "^ERROR:" :: L8.ByteString
-
-isError :: String -> Bool
-isError = flip (=~) errorPattern
 
 leftWithError :: (MonadError IOError m, MonadIO m) => String -> m b
 leftWithError ll = do
@@ -323,62 +257,6 @@ extractLinks r = do
 -- λ> fmap (map (take 3)) (fmap (sections (~== ("<a>" :: String)) . parseTags) (readFile "./parseThis.html"))
 -- λ> fmap (map (\(a:b:c) -> LinkStruct 0 (fromAttrib "href" a) (fromTagText b) True True)) tt
 
-maybePrintSomething :: (Show a, MonadIO f) => a -> Response body -> Maybe String -> Options -> f ()
-maybePrintSomething u r t o =
-    when (optVerbose o) (
-        maybePrintServer u (getServer r) t >>
-            liftIO (maybePrintCookies u r) >>
-                maybePrintContentLength (getContentLength r))
-
--- https://hackage.haskell.org/package/http-client-0.5.7.0/docs/Network-HTTP-Client.html#t:CookieJar
-maybePrintCookies :: (Show a) => a -> Response body -> IO ()
-maybePrintCookies u r =
-    mapM_
-    (\c -> putStrLn $ " - "
-           ++ show u
-           ++ " : cookieName: "
-           ++ show (cookie_name c)
-           ++ ", cookieDomain; "
-           ++ show (cookie_domain c))
-    (destroyCookieJar (responseCookieJar r))
-
-getContentLength :: Response body -> Maybe BS.ByteString
-getContentLength r = lookup hContentLength (responseHeaders r)
-
-getServer :: Response body -> Maybe BS.ByteString
-getServer r = lookup hServer (responseHeaders r)
-
-serverLine :: (Show a1, Show a2 ) => a1 -> Maybe a2 -> Maybe String -> String
-serverLine u m (Just t) =
-    case m of
-        Just sr -> "[" ++ show u ++ "] with title \"" ++ t ++ "\" is served by " ++ show sr ++ "."
-        Nothing -> "[" ++ show u ++ "] with title \"" ++ t ++ "\" is served by an anonymous server"
-serverLine u m Nothing =
-    case m of
-        Just sr -> "[" ++ show u ++ "] is served by " ++ show sr ++ "."
-        Nothing -> "[" ++ show u ++ "] is served by an anonymous server"
-
-maybePrintServer :: (Show a, Show b, MonadIO m) => a -> Maybe b -> Maybe String -> m ()
-maybePrintServer u m t = liftIO $ putStrLn (serverLine u m t)
-
-contentLengthLine :: Show a => Maybe a -> String
-contentLengthLine m =
-    case m of
-        Just cl -> "Found something: " ++ show cl ++ " (content length)"
-        Nothing -> "Found something but without contentLength"
-
-maybePrintContentLength :: (Show a, MonadIO m) => Maybe a -> m ()
-maybePrintContentLength = liftIO . putStrLn . contentLengthLine
-
--- Some handy embedding functions.
-embedEither :: (MonadError e m) => (s -> e) -> Either s a -> m a
--- either :: (a -> c) -> (b -> c) -> Either a b -> c
--- embedEither f esa = either (throwError . f) return esa
-embedEither f = either (throwError . f) return
-
-embedMaybe :: (MonadError e m) => e -> Maybe a -> m a
-embedMaybe err = maybe (throwError err) return
-
 worker :: TChan String -> TChan String -> TChan Task -> TVar Int -> Options -> IO ()
 worker badLinks goodLinks jobQueue badCount opts = loop
   where
@@ -401,31 +279,6 @@ worker badLinks goodLinks jobQueue badCount opts = loop
         where report s = atomically $ do
                            modifyTVar_ badCount (+1)
                            writeTChan badLinks (url ++ " " ++ s)
-
-data JobState = JobState { linksSeen :: S.Set URL
-                         , linksFound :: Int
-                         , linkQueue :: TChan Task
-                         }
-
-newtype Job a = Job { runJob :: StateT JobState IO a }
-    deriving (Functor, Applicative, Monad, MonadState JobState, MonadIO)
-
-printJobState :: StateT JobState IO ()
-printJobState = do
-    liftIO $ putStrLn "printing JobState"
-    ls <- gets linksSeen
-    lf <- gets linksFound
-    liftIO (print $ "linksSeen: " ++ show ls ++ " linksFound: " ++ show lf)
-
-execJob :: Job a -> JobState -> IO JobState
-execJob = execStateT . runJob
-
-printURLs :: FilePath -> IO ()
-printURLs f = do
-    putStrLn ("printURLs from " ++ show f)
-    src <- liftIO $ L8.readFile f
-    let urls = parseLinks src
-    mapM_ (\s -> putStrLn $ " - " ++ show s) urls
 
 checkURLs :: FilePath -> Bool -> Job ()
 checkURLs f v = do
