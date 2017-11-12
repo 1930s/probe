@@ -70,6 +70,12 @@ extractLinks r = do
                                                 (fromTagText tText)
                                                 (isTagOpenName "a" tOpen)
                                                 (isTagCloseName "a" tClose)
+                f (tOpenA:tOpenImg:tgs) | linkAndImgStruct tOpenA tOpenImg =
+                                           show $ LinkStruct 0
+                                                (fromAttrib "href" tOpenA)
+                                                (fromAttrib "alt" tOpenImg)
+                                                (isTagOpenName "a" tOpenA)
+                                                (isTagCloseName "a" (last tgs))
                 -- ViewPatterns
                 -- f (hd:(reverse -> (tl:_))) | isTagOpenName "a" hd && isTagText tl
                 -- Head&Last
@@ -85,6 +91,9 @@ extractLinks r = do
 
                 basicStruct :: Tag String -> Tag String -> Tag String -> Bool
                 basicStruct tO tT tC = isTagOpenName "a" tO && isTagText tT && isTagCloseName "a" tC
+
+                linkAndImgStruct :: Tag String -> Tag String -> Bool
+                linkAndImgStruct tOa tOi = isTagOpenName "a" tOa && isTagOpenName "img" tOi
 
     return contents
 
