@@ -1,7 +1,12 @@
 -- https://www.schoolofhaskell.com/school/to-infinity-and-beyond/pick-of-the-week/guide-to-ghc-extensions/basic-syntax-extensions#lambdacase
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Network where
+
+import Options
+import Utils
+import Printing
 
 -- https://hackage.haskell.org/package/mtl-2.2.1/docs/Control-Monad-Reader.html
 import Control.Monad.Reader
@@ -26,7 +31,53 @@ import Control.Monad.Except
 -- https://github.com/snoyberg/http-client
 -- Tutorial:
 -- https://haskell-lang.org/library/http-client
-import Network.HTTP.Simple ( Response )
+import Network.HTTP.Simple ( Response
+                           , Request
+                           , parseRequest
+                           , setRequestMethod
+                           , setRequestBodyLBS
+                           , setRequestSecure
+                           , setRequestPort
+                           , setRequestHeaders
+                           )
+-- http://hackage.haskell.org/package/http-client
+-- http://hackage.haskell.org/package/http-client-tls
+-- https://github.com/snoyberg/http-client
+import Network.HTTP.Client ( responseStatus
+                           , responseBody
+                           , Manager
+                           , httpLbs
+                           , newManager
+                           , managerSetProxy
+                           , noProxy
+                           , responseHeaders
+                           , cookie_domain
+                           , cookie_name
+                           , destroyCookieJar
+                           , responseCookieJar
+                           )
+import Network.HTTP.Client.TLS
+
+-- http://hackage.haskell.org/package/http-types-0.9.1/docs/Network-HTTP-Types-Header.html#t:ResponseHeaders
+-- http://hackage.haskell.org/package/http-types-0.9.1/docs/Network-HTTP-Types-Header.html#t:Header
+import Network.HTTP.Types.Header
+-- import qualified Network.HTTP.Client.TLS as T
+-- https://hackage.haskell.org/package/http-types
+import Network.HTTP.Types.Status (statusCode)
+
+-- http://hackage.haskell.org/package/bytestring-0.10.8.2/docs/Data-ByteString-Lazy-Char8.html#v:pack
+-- import qualified Data.ByteString.Lazy.Char8 as C
+-- http://hackage.haskell.org/package/bytestring-0.10.8.2/docs/Data-ByteString-Char8.html#v:pack
+import qualified Data.ByteString.Char8 as C
+import qualified Data.ByteString.Lazy.Char8 as L8
+
+-- https://hackage.haskell.org/package/bytestring-0.10.8.1/docs/Data-ByteString.html
+import qualified Data.ByteString as BS
+
+import Control.Exception ( finally
+                         , catch
+                         , SomeException
+                         )
 
 type ResponseContent = Response L8.ByteString
 type ResponseMonad = ReaderT Options (ExceptT String IO)
@@ -135,5 +186,11 @@ rightWithBody r u n o =
         _ -> do
             extractLinks r >>= \tl -> printLinksOrgMode u r tl o
             extractTitles r >>= \ts -> do
-                maybePrintSomething u r (Just ts) o
+                maybePrintSomething u (getServer r) (Just ts) o
                 return $ Right (serverLine u (getServer r) (Just ts))
+
+getServer :: Response body -> Maybe BS.ByteString
+getServer r = lookup hServer (responseHeaders r)
+
+getContentLength :: Response body -> Maybe BS.ByteString
+getContentLength r = lookup hContentLength (responseHeaders r)
