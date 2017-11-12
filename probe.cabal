@@ -45,10 +45,13 @@ library
     , stm >= 2.4.4.1
     , tagsoup >= 0.14.1
   exposed-modules:
+      Job
       LinkStruct
       Network
-      Option
+      Options
+      Printing
       Probe
+      Utils
   default-language: Haskell2010
 
 executable probe
