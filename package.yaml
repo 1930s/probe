@@ -1,0 +1,88 @@
+# This YAML file describes your package. Stack will automatically generate a
+# Cabal file when you run `stack build`. See the hpack website for help with
+# this file: <https://github.com/sol/hpack>.
+benchmarks:
+  probe-benchmarks:
+    dependencies:
+    - base
+    - probe
+    - criterion
+    ghc-options:
+    - -rtsopts
+    - -threaded
+    - -with-rtsopts=-N
+    main: Main.hs
+    source-dirs: benchmark
+category: Concurrency
+description: Probe is an Haskell implementation of Concurrent Workers
+executables:
+  probe:
+    dependencies:
+    - base
+    - probe
+    ghc-options:
+    - -rtsopts
+    - -threaded
+    - -with-rtsopts=-N
+    main: Main.hs
+    source-dirs: executable
+extra-source-files:
+- CHANGELOG.md
+- LICENSE.md
+- package.yaml
+- README.md
+- stack.yaml
+ghc-options: -Wall
+github: zeroed/probe
+library:
+  dependencies:
+    # https://hackage.haskell.org/package/HTTP
+    - HTTP >= 4000.3.7
+    # https://hackage.haskell.org/package/base
+    - base >= 4.9.1.0
+    # https://hackage.haskell.org/package/bytestring
+    - bytestring >= 0.10.8.1
+    # https://hackage.haskell.org/package/containers
+    # https://github.com/haskell/containers
+    - containers >= 0.5.7.1
+    # https://hackage.haskell.org/package/http-client
+    # https://github.com/snoyberg/http-client
+    - http-client >= 0.5.7.0
+    # https://hackage.haskell.org/package/http-client-tls
+    - http-client-tls >= 0.3.5.1
+    # https://hackage.haskell.org/package/http-conduit
+    - http-conduit >= 2.2.3.2
+    # https://hackage.haskell.org/package/http-types
+    - http-types >= 0.9.1
+    # https://hackage.haskell.org/package/mtl
+    # https://github.com/haskell/mtl
+    - mtl >= 2.2.1
+    # https://hackage.haskell.org/package/network-uri
+    - network-uri >= 2.6.1.0
+    # https://hackage.haskell.org/package/regex-posix
+    - regex-posix >= 0.95.2
+    # https://hackage.haskell.org/package/stm
+    - stm >= 2.4.4.1
+    # https://hackage.haskell.org/package/tagsoup
+    # https://github.com/ndmitchell/tagsoup
+    - tagsoup >= 0.14.1
+  source-dirs: library
+license: MIT
+author: Edoardo Rossi <edd.rossi@gmail.com>
+maintainer: Edoardo Rossi <edd.rossi@gmail.com>
+name: probe
+synopsis: Concurrent Workers
+tests:
+  probe-test-suite:
+    dependencies:
+    - base
+    - probe
+    - tasty
+    - tasty-hspec
+    ghc-options:
+    - -rtsopts
+    - -threaded
+    - -with-rtsopts=-N
+    main: Main.hs
+    source-dirs: test-suite
+version: '0.0.1'

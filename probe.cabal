@@ -1,0 +1,91 @@
+-- This file has been generated from package.yaml by hpack version 0.17.1.
+--
+-- see: https://github.com/sol/hpack
+
+name:           probe
+version:        0.0.1
+synopsis:       Concurrent Workers
+description:    Probe is an Haskell implementation of Concurrent Workers
+category:       Concurrency
+homepage:       https://github.com/zeroed/probe#readme
+bug-reports:    https://github.com/zeroed/probe/issues
+author:         Edoardo Rossi <edd.rossi@gmail.com>
+maintainer:     Edoardo Rossi <edd.rossi@gmail.com>
+license:        MIT
+build-type:     Simple
+cabal-version:  >= 1.10
+
+extra-source-files:
+    CHANGELOG.md
+    LICENSE.md
+    package.yaml
+    README.md
+    stack.yaml
+
+source-repository head
+  type: git
+  location: https://github.com/zeroed/probe
+
+library
+  hs-source-dirs:
+      library
+  ghc-options: -Wall
+  build-depends:
+      HTTP >= 4000.3.7
+    , base >= 4.9.1.0
+    , bytestring >= 0.10.8.1
+    , containers >= 0.5.7.1
+    , http-client >= 0.5.7.0
+    , http-client-tls >= 0.3.5.1
+    , http-conduit >= 2.2.3.2
+    , http-types >= 0.9.1
+    , mtl >= 2.2.1
+    , network-uri >= 2.6.1.0
+    , regex-posix >= 0.95.2
+    , stm >= 2.4.4.1
+    , tagsoup >= 0.14.1
+  exposed-modules:
+      Filters
+      Job
+      LinkStruct
+      Network
+      Options
+      Printing
+      Probe
+      Utils
+  default-language: Haskell2010
+
+executable probe
+  main-is: Main.hs
+  hs-source-dirs:
+      executable
+  ghc-options: -Wall -rtsopts -threaded -with-rtsopts=-N
+  build-depends:
+      base
+    , probe
+  default-language: Haskell2010
+
+test-suite probe-test-suite
+  type: exitcode-stdio-1.0
+  main-is: Main.hs
+  hs-source-dirs:
+      test-suite
+  ghc-options: -Wall -rtsopts -threaded -with-rtsopts=-N
+  build-depends:
+      base
+    , probe
+    , tasty
+    , tasty-hspec
+  default-language: Haskell2010
+
+benchmark probe-benchmarks
+  type: exitcode-stdio-1.0
+  main-is: Main.hs
+  hs-source-dirs:
+      benchmark
+  ghc-options: -Wall -rtsopts -threaded -with-rtsopts=-N
+  build-depends:
+      base
+    , probe
+    , criterion
+  default-language: Haskell2010
