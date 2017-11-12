@@ -64,12 +64,18 @@ extractLinks r = do
     let tags = parseTags $ show (responseBody r)
     let contents = map f $ linksFilter tags
           where f :: [Tag String] -> String
-                f [tOpen, tText, tClose] | goodStruct tOpen tText tClose =
+                f [tOpen, tText, tClose] | basicStruct tOpen tText tClose =
                                            show $ LinkStruct 0
                                                 (fromAttrib "href" tOpen)
                                                 (fromTagText tText)
                                                 (isTagOpenName "a" tOpen)
                                                 (isTagCloseName "a" tClose)
+                f (tOpenA:tOpenImg:tgs) | linkAndImgStruct tOpenA tOpenImg =
+                                           show $ LinkStruct 0
+                                                (fromAttrib "href" tOpenA)
+                                                (fromAttrib "alt" tOpenImg)
+                                                (isTagOpenName "a" tOpenA)
+                                                (isTagCloseName "a" (last tgs))
                 -- ViewPatterns
                 -- f (hd:(reverse -> (tl:_))) | isTagOpenName "a" hd && isTagText tl
                 -- Head&Last
@@ -83,8 +89,11 @@ extractLinks r = do
                              (isTagCloseName "a" (last tgs))
                 f raw = "ERROR: cannot parse " ++ show raw
 
-                goodStruct :: Tag String -> Tag String -> Tag String -> Bool
-                goodStruct tO tT tC = isTagOpenName "a" tO && isTagText tT && isTagCloseName "a" tC
+                basicStruct :: Tag String -> Tag String -> Tag String -> Bool
+                basicStruct tO tT tC = isTagOpenName "a" tO && isTagText tT && isTagCloseName "a" tC
+
+                linkAndImgStruct :: Tag String -> Tag String -> Bool
+                linkAndImgStruct tOa tOi = isTagOpenName "a" tOa && isTagOpenName "img" tOi
 
     return contents
 

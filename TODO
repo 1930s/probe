@@ -1,4 +1,4 @@
-- TODO: add index
+- TODO: add index to links in text
 - TODO: fix default index (0) in LinkStruct
 - TODO: add more patterns (<a> with <img> and "alt" property inside)
 - DONE: more comprehensive/relaxed patterns (randomly placed tagText, pick the first available)
@@ -6,7 +6,7 @@
 - DONE: print only errors in parsing (use option)
 - TODO: filter internal/external links
 - TODO: pick the next external URLs randomly (autoseeding)
-- TODO: split this file because emacs is lagging
+- DONE: split this file because emacs is lagging
 - TODO: add "error only" option in args
 - TODO: move LinkStuct validation (goodStruct) to the data itself
 - TODO: add support for multiple files in --files options
