@@ -1,3 +1,5 @@
+-- https://prime.haskell.org/wiki/FlexibleContexts
+{-# LANGUAGE FlexibleContexts #-}
 -- https://www.schoolofhaskell.com/school/to-infinity-and-beyond/pick-of-the-week/guide-to-ghc-extensions/basic-syntax-extensions#lambdacase
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedStrings #-}
@@ -7,6 +9,7 @@ module Network where
 import Options
 import Utils
 import Printing
+import Filters
 
 -- https://hackage.haskell.org/package/mtl-2.2.1/docs/Control-Monad-Reader.html
 import Control.Monad.Reader
@@ -44,15 +47,12 @@ import Network.HTTP.Simple ( Response
 -- http://hackage.haskell.org/package/http-client-tls
 -- https://github.com/snoyberg/http-client
 import Network.HTTP.Client ( responseStatus
-                           , responseBody
                            , Manager
                            , httpLbs
                            , newManager
                            , managerSetProxy
                            , noProxy
                            , responseHeaders
-                           , cookie_domain
-                           , cookie_name
                            , destroyCookieJar
                            , responseCookieJar
                            )
@@ -70,14 +70,10 @@ import Network.HTTP.Types.Status (statusCode)
 -- http://hackage.haskell.org/package/bytestring-0.10.8.2/docs/Data-ByteString-Char8.html#v:pack
 import qualified Data.ByteString.Char8 as C
 import qualified Data.ByteString.Lazy.Char8 as L8
-
 -- https://hackage.haskell.org/package/bytestring-0.10.8.1/docs/Data-ByteString.html
 import qualified Data.ByteString as BS
-
-import Control.Exception ( finally
-                         , catch
-                         , SomeException
-                         )
+-- https://hackage.haskell.org/package/base-4.9.0.0/docs/Control-Exception.html
+import Control.Exception ( SomeException) -- finally, catch)
 
 type ResponseContent = Response L8.ByteString
 type ResponseMonad = ReaderT Options (ExceptT String IO)
@@ -166,7 +162,7 @@ chaseBody n u o = do
 
 rightWithStatusCode :: (Show a) => Response body -> a -> Int -> Options -> IO (Either String Int)
 rightWithStatusCode r u n o = do
-    maybePrintSomething u r Nothing o
+    maybePrintSomething u (getServer r) (getContentLength r) (destroyCookieJar (responseCookieJar r)) Nothing o
     case statusCode (responseStatus r) `div` 100 :: Int of
         3 -> do
             let u' = return $ lookup hLocation (responseHeaders r)
@@ -186,7 +182,7 @@ rightWithBody r u n o =
         _ -> do
             extractLinks r >>= \tl -> printLinksOrgMode u r tl o
             extractTitles r >>= \ts -> do
-                maybePrintSomething u (getServer r) (Just ts) o
+                maybePrintSomething u (getServer r) (getContentLength r) (destroyCookieJar (responseCookieJar r)) (Just ts) o
                 return $ Right (serverLine u (getServer r) (Just ts))
 
 getServer :: Response body -> Maybe BS.ByteString
@@ -194,3 +190,8 @@ getServer r = lookup hServer (responseHeaders r)
 
 getContentLength :: Response body -> Maybe BS.ByteString
 getContentLength r = lookup hContentLength (responseHeaders r)
+
+leftWithError :: (MonadError IOError m, MonadIO m) => String -> m b
+leftWithError ll = do
+    liftIO $ putStrLn ("Something went wrong: " ++ show ll :: String)
+    throwError $ userError ll
