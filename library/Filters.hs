@@ -64,7 +64,7 @@ extractLinks r = do
     let tags = parseTags $ show (responseBody r)
     let contents = map f $ linksFilter tags
           where f :: [Tag String] -> String
-                f [tOpen, tText, tClose] | goodStruct tOpen tText tClose =
+                f [tOpen, tText, tClose] | basicStruct tOpen tText tClose =
                                            show $ LinkStruct 0
                                                 (fromAttrib "href" tOpen)
                                                 (fromTagText tText)
@@ -83,8 +83,8 @@ extractLinks r = do
                              (isTagCloseName "a" (last tgs))
                 f raw = "ERROR: cannot parse " ++ show raw
 
-                goodStruct :: Tag String -> Tag String -> Tag String -> Bool
-                goodStruct tO tT tC = isTagOpenName "a" tO && isTagText tT && isTagCloseName "a" tC
+                basicStruct :: Tag String -> Tag String -> Tag String -> Bool
+                basicStruct tO tT tC = isTagOpenName "a" tO && isTagText tT && isTagCloseName "a" tC
 
     return contents
 
