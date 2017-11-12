@@ -7,8 +7,6 @@ import Options
 -- https://hackage.haskell.org/package/bytestring
 -- https://hackage.haskell.org/package/bytestring-0.10.8.2/docs/Data-ByteString-Lazy.html
 import qualified Data.ByteString.Lazy.Char8 as L8
--- https://hackage.haskell.org/package/bytestring-0.10.8.1/docs/Data-ByteString.html
-import qualified Data.ByteString as BS
 -- https://hackage.haskell.org/package/mtl-2.2.1/docs/Control-Monad-Reader.html
 import Control.Monad.Reader
 -- http://hackage.haskell.org/package/stm
@@ -23,20 +21,13 @@ import Text.Regex.Posix
 -- http://hackage.haskell.org/package/http-client
 -- http://hackage.haskell.org/package/http-client-tls
 -- https://github.com/snoyberg/http-client
-import Network.HTTP.Simple ( Response )
-import Network.HTTP.Client ( responseStatus
-                           , responseBody
-                           , Manager
-                           , httpLbs
-                           , newManager
-                           , managerSetProxy
-                           , noProxy
-                           , responseHeaders
+import Network.HTTP.Client ( Cookie
                            , cookie_domain
                            , cookie_name
-                           , destroyCookieJar
-                           , responseCookieJar
                            )
+
+-- https://hackage.haskell.org/package/bytestring-0.10.8.1/docs/Data-ByteString.html
+import qualified Data.ByteString as BS
 
 errorPattern :: L8.ByteString
 errorPattern = "^ERROR:" :: L8.ByteString
@@ -74,16 +65,17 @@ printLinksOrgMode _u _r tl o =
                      then when (isError $ take 6 s) $ putStrLn s
                    else putStrLn s
 
-maybePrintSomething :: (Show a, MonadIO f) => a -> Response body -> Maybe String -> Options -> f ()
-maybePrintSomething u r t o =
-    when (optVerbose o) (
-        maybePrintServer u (getServer r) t >>
-            liftIO (maybePrintCookies u r) >>
-                maybePrintContentLength (getContentLength r))
+maybePrintSomething :: (Show a, MonadIO f) => a -> Maybe BS.ByteString -> Maybe BS.ByteString -> [Cookie] -> Maybe String -> Options -> f ()
+maybePrintSomething url serverHeader contentLengthHeder cookies title opts =
+    when (optVerbose opts) (
+        maybePrintServer url serverHeader title >>
+            liftIO (maybePrintCookies url cookies) >>
+                maybePrintContentLength contentLengthHeder)
 
 -- https://hackage.haskell.org/package/http-client-0.5.7.0/docs/Network-HTTP-Client.html#t:CookieJar
-maybePrintCookies :: (Show a) => a -> Response body -> IO ()
-maybePrintCookies u r =
+-- https://hackage.haskell.org/package/http-client-0.1.0.0/docs/Network-HTTP-Client-Cookies.html
+maybePrintCookies :: (Show a) => a -> [Cookie] -> IO ()
+maybePrintCookies u =
     mapM_
     (\c -> putStrLn $ " - "
            ++ show u
@@ -91,7 +83,6 @@ maybePrintCookies u r =
            ++ show (cookie_name c)
            ++ ", cookieDomain; "
            ++ show (cookie_domain c))
-    (destroyCookieJar (responseCookieJar r))
 
 serverLine :: (Show a1, Show a2 ) => a1 -> Maybe a2 -> Maybe String -> String
 serverLine u m (Just t) =
@@ -104,7 +95,7 @@ serverLine u m Nothing =
         Nothing -> "[" ++ show u ++ "] is served by an anonymous server"
 
 maybePrintServer :: (Show a, Show b, MonadIO m) => a -> Maybe b -> Maybe String -> m ()
-maybePrintServer u m t = liftIO $ putStrLn (serverLine u m t)
+maybePrintServer u m title = liftIO $ putStrLn (serverLine u m title)
 
 contentLengthLine :: Show a => Maybe a -> String
 contentLengthLine m =
@@ -114,10 +105,3 @@ contentLengthLine m =
 
 maybePrintContentLength :: (Show a, MonadIO m) => Maybe a -> m ()
 maybePrintContentLength = liftIO . putStrLn . contentLengthLine
-
-printURLs :: FilePath -> IO ()
-printURLs f = do
-    putStrLn ("printURLs from " ++ show f)
-    src <- liftIO $ L8.readFile f
-    let urls = parseLinks src
-    mapM_ (\s -> putStrLn $ " - " ++ show s) urls
