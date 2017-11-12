@@ -18,4 +18,4 @@ stack bench
 stack haddock
 ```
 
-[probe]: https://github.com/githubuser/probe
+[probe]: https://github.com/zeroed/probe
