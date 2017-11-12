@@ -45,6 +45,7 @@ library
     , stm >= 2.4.4.1
     , tagsoup >= 0.14.1
   exposed-modules:
+      Filters
       Job
       LinkStruct
       Network
