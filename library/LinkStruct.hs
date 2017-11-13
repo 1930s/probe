@@ -16,7 +16,7 @@ data LinkStruct = LinkStruct { index :: Int
                              }
 
 linkStruct :: Int -> String -> String -> LinkStruct
-linkStruct i h = assert (i >= 0) $ LinkStruct i (cleanup h)
+linkStruct i h t = assert (i >= 0) $ LinkStruct i (dequote h) (cleanup t)
 
 linkStructSimple :: String -> String -> LinkStruct
 linkStructSimple = linkStruct 0
