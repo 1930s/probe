@@ -15,31 +15,15 @@ import Network.HTTP.Client ( responseBody )
 -- https://github.com/ndmitchell/tagsoup
 import Text.HTML.TagSoup
 
--- λ> takeWhile (~/= TagClose ("title" :: String)) $ dropWhile (~/= TagOpen ("title" :: String) []) ttt
--- [TagOpen "title" [],TagText "tagsoup/Sample.hs at master \183 ndmitchell/tagsoup"]
-
--- λ> sections (~== ("<title>" :: String)) ttt
--- [[TagOpen "title" [],TagText "tagsoup/Sample.hs at master ... ,TagClose "title",TagText " ",TagOpen "link"
--- ... ion+xml"),("href","/opensearch.xml"),("title","GitHub")],
 titlesFilter :: [Tag String] -> [Tag String]
 titlesFilter tags = takeWhile (~/= TagClose ("title" :: String))
                   $ dropWhile (~/= TagOpen ("title" :: String) []) tags
 
--- let ttt = readFile "./parseThis.html"
--- let t = fmap parseTags ttt
--- fmap (filter (~== TagOpen "a" [("href", "")])) t
 linksFilter :: [Tag String] -> [[Tag String]]
 -- linksFilter tags = filter (~== TagOpen ("a" :: String) [("href", "")]) tags
 -- (take 3) is only the canonical link
 -- linksFilter tags = map (take 3) (sections (~== ("<a>" :: String)) tags)
 linksFilter tags = map (takeWhile (~/= TagClose ("a" :: String))) (sections (~== ("<a>" :: String)) tags)
-
--- λ> map (\t ->  fromTagText (t !! 1)) (sections (~== "<a>") s)
--- ["here","there"]
--- λ> map (\t -> (isTagOpenName "a" (t !! 0), (fromAttrib "href" (t !! 0)), fromTagText (t !! 1), isTagCloseName "a" (t !! 2))) (sections (~== "<a>") s)
--- [(True,"http://haskell.org","here",True),(True,"http://wiki.haskell.org","there",True)]
--- λ> map (\t -> LinkStruct (isTagOpenName "a" (t !! 0)) (fromAttrib "href" (t !! 0)) (fromTagText (t !! 1)) (isTagCloseName "a" (t !! 2))) (sections (~== "<a>") s)
--- [[[http://haskell.org][here]],[[http://wiki.haskell.org][there]]]
 
 dequote :: String -> String
 dequote ('\"':xs) | last xs == '\"' = init xs
@@ -93,6 +77,21 @@ extractLinks r = do
                 isLinkAndMixedStruct tO tgs = isTagOpenName "a" tO && any isTagText tgs
 
     return contents
+
+-- λ> takeWhile (~/= TagClose ("title" :: String)) $ dropWhile (~/= TagOpen ("title" :: String) []) ttt
+-- [TagOpen "title" [],TagText "tagsoup/Sample.hs at master \183 ndmitchell/tagsoup"]
+-- λ> sections (~== ("<title>" :: String)) ttt
+-- [[TagOpen "title" [],TagText "tagsoup/Sample.hs at master ... ,TagClose "title",TagText " ",TagOpen "link"
+-- ... ion+xml"),("href","/opensearch.xml"),("title","GitHub")],
+-- let ttt = readFile "./parseThis.html"
+-- let t = fmap parseTags ttt
+-- fmap (filter (~== TagOpen "a" [("href", "")])) t
+-- λ> map (\t ->  fromTagText (t !! 1)) (sections (~== "<a>") s)
+-- ["here","there"]
+-- λ> map (\t -> (isTagOpenName "a" (t !! 0), (fromAttrib "href" (t !! 0)), fromTagText (t !! 1), isTagCloseName "a" (t !! 2))) (sections (~== "<a>") s)
+-- [(True,"http://haskell.org","here",True),(True,"http://wiki.haskell.org","there",True)]
+-- λ> map (\t -> LinkStruct (isTagOpenName "a" (t !! 0)) (fromAttrib "href" (t !! 0)) (fromTagText (t !! 1)) (isTagCloseName "a" (t !! 2))) (sections (~== "<a>") s)
+-- [[[http://haskell.org][here]],[[http://wiki.haskell.org][there]]]
 
 -- λ> :m +Text.HTML.TagSoup
 -- λ> :m +System.IO
