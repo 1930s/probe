@@ -64,7 +64,7 @@ extractLinks r = do
                 f (h:tgs) | isLinkAndMixedStruct h tgs =
                         show $ LinkStruct 0
                              (fromAttrib "href" h)
-                             (fromTagText (fromJust (find isTagText tgs)))
+                             (cleanup (fromTagText (fromJust (find isTagText tgs))))
                 f raw = "ERROR: cannot parse " ++ show raw
 
                 isBasicStruct :: Tag String -> Tag String -> Tag String -> Bool
