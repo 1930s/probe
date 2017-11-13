@@ -79,4 +79,7 @@ extractLinks r = do
     return contents
 
 cleanup :: String -> String
-cleanup = unwords . words
+cleanup = unwords . words . stripChars "\n\r\t"
+
+stripChars :: String -> String -> String
+stripChars = filter . flip notElem
