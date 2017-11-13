@@ -49,11 +49,11 @@ extractLinks r = do
     let contents = map f $ linksFilter tags
           where f :: [Tag String] -> String
                 f [tOpen, tText, tClose] | isBasicStruct tOpen tText tClose =
-                                           show $ LinkStruct 0
+                                           show $ linkStruct 0
                                                 (fromAttrib "href" tOpen)
                                                 (fromTagText tText)
                 f (tOpenA:tOpenImg:_rest) | isLinkAndImgStruct tOpenA tOpenImg =
-                                           show $ LinkStruct 0
+                                           show $ linkStruct 0
                                                 (fromAttrib "href" tOpenA)
                                                 (fromAttrib "alt" tOpenImg)
                 -- ViewPatterns
@@ -62,7 +62,7 @@ extractLinks r = do
                 -- f (h:tgs) | isTagOpenName "a" h && isTagText (last tgs) =
                 -- Finding a tagText
                 f (h:tgs) | isLinkAndMixedStruct h tgs =
-                        show $ LinkStruct 0
+                        show $ linkStruct 0
                              (fromAttrib "href" h)
                              (fromTagText (fromJust (find isTagText tgs)))
                 f raw = "ERROR: cannot parse " ++ show raw
