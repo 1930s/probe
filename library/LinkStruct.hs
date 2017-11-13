@@ -29,3 +29,7 @@ cleanup = unwords . words . stripChars "\n\r\t"
 
 stripChars :: String -> String -> String
 stripChars = filter . flip notElem
+
+dequote :: String -> String
+dequote ('\"':xs) | last xs == '\"' = init xs
+dequote x = x

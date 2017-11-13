@@ -25,10 +25,6 @@ linksFilter :: [Tag String] -> [[Tag String]]
 -- linksFilter tags = map (take 3) (sections (~== ("<a>" :: String)) tags)
 linksFilter tags = map (takeWhile (~/= TagClose ("a" :: String))) (sections (~== ("<a>" :: String)) tags)
 
-dequote :: String -> String
-dequote ('\"':xs) | last xs == '\"' = init xs
-dequote x = x
-
 -- The 'unwords . words' deletes all multiple spaces, replaces
 -- tabs and newlines with spaces and trims the front and back
 --
