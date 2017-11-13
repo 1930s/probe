@@ -6,12 +6,10 @@ module LinkStruct ( LinkStruct(..)
 data LinkStruct = LinkStruct { index :: Int
                              , href :: String
                              , text :: String
-                             , tagOpenA :: Bool
-                             , tagCloseA :: Bool
                              }
 
 linkStructSimple :: String -> String -> LinkStruct
-linkStructSimple h t = LinkStruct 0 h t True True
+linkStructSimple = LinkStruct 0
 
 instance Show LinkStruct where
-    show (LinkStruct _ h t _ _) = "[[" ++ h ++ "][" ++ t ++"]]"
+    show (LinkStruct _ h t) = "[[" ++ h ++ "][" ++ t ++"]]"

@@ -64,36 +64,33 @@ extractLinks r = do
     let tags = parseTags $ show (responseBody r)
     let contents = map f $ linksFilter tags
           where f :: [Tag String] -> String
-                f [tOpen, tText, tClose] | basicStruct tOpen tText tClose =
+                f [tOpen, tText, tClose] | isBasicStruct tOpen tText tClose =
                                            show $ LinkStruct 0
                                                 (fromAttrib "href" tOpen)
                                                 (fromTagText tText)
-                                                (isTagOpenName "a" tOpen)
-                                                (isTagCloseName "a" tClose)
-                f (tOpenA:tOpenImg:tgs) | linkAndImgStruct tOpenA tOpenImg =
+                f (tOpenA:tOpenImg:_rest) | isLinkAndImgStruct tOpenA tOpenImg =
                                            show $ LinkStruct 0
                                                 (fromAttrib "href" tOpenA)
                                                 (fromAttrib "alt" tOpenImg)
-                                                (isTagOpenName "a" tOpenA)
-                                                (isTagCloseName "a" (last tgs))
                 -- ViewPatterns
                 -- f (hd:(reverse -> (tl:_))) | isTagOpenName "a" hd && isTagText tl
                 -- Head&Last
                 -- f (h:tgs) | isTagOpenName "a" h && isTagText (last tgs) =
                 -- Finding a tagText
-                f (h:tgs) | isTagOpenName "a" h && any isTagText tgs =
+                f (h:tgs) | isLinkAndMixedStruct h tgs =
                         show $ LinkStruct 0
                              (fromAttrib "href" h)
                              (fromTagText (fromJust (find isTagText tgs)))
-                             (isTagOpenName "a" h)
-                             (isTagCloseName "a" (last tgs))
                 f raw = "ERROR: cannot parse " ++ show raw
 
-                basicStruct :: Tag String -> Tag String -> Tag String -> Bool
-                basicStruct tO tT tC = isTagOpenName "a" tO && isTagText tT && isTagCloseName "a" tC
+                isBasicStruct :: Tag String -> Tag String -> Tag String -> Bool
+                isBasicStruct tO tT tC = isTagOpenName "a" tO && isTagText tT && isTagCloseName "a" tC
 
-                linkAndImgStruct :: Tag String -> Tag String -> Bool
-                linkAndImgStruct tOa tOi = isTagOpenName "a" tOa && isTagOpenName "img" tOi
+                isLinkAndImgStruct :: Tag String -> Tag String -> Bool
+                isLinkAndImgStruct tOa tOi = isTagOpenName "a" tOa && isTagOpenName "img" tOi
+
+                isLinkAndMixedStruct :: Tag String -> [Tag String] -> Bool
+                isLinkAndMixedStruct tO tgs = isTagOpenName "a" tO && any isTagText tgs
 
     return contents
 
