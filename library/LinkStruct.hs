@@ -7,16 +7,19 @@ module LinkStruct ( LinkStruct
                   , text
                   ) where
 
+-- https://hackage.haskell.org/package/base-4.10.0.0/docs/Control-Exception.html
+import Control.Exception ( assert )
+
 data LinkStruct = LinkStruct { index :: Int
                              , href :: String
                              , text :: String
                              }
 
 linkStruct :: Int -> String -> String -> LinkStruct
-linkStruct i h = LinkStruct i (cleanup h)
+linkStruct i h = assert (i >= 0) $ LinkStruct i (cleanup h)
 
 linkStructSimple :: String -> String -> LinkStruct
-linkStructSimple = LinkStruct 0
+linkStructSimple = linkStruct 0
 
 instance Show LinkStruct where
     show (LinkStruct _ h t) = "[[" ++ h ++ "][" ++ t ++"]]"
