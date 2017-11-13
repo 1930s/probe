@@ -51,11 +51,11 @@ extractLinks r = do
                 f [tOpen, tText, tClose] | isBasicStruct tOpen tText tClose =
                                            show $ LinkStruct 0
                                                 (fromAttrib "href" tOpen)
-                                                (fromTagText tText)
+                                                (cleanup (fromTagText tText))
                 f (tOpenA:tOpenImg:_rest) | isLinkAndImgStruct tOpenA tOpenImg =
                                            show $ LinkStruct 0
                                                 (fromAttrib "href" tOpenA)
-                                                (fromAttrib "alt" tOpenImg)
+                                                (cleanup (fromAttrib "alt" tOpenImg))
                 -- ViewPatterns
                 -- f (hd:(reverse -> (tl:_))) | isTagOpenName "a" hd && isTagText tl
                 -- Head&Last
@@ -77,3 +77,6 @@ extractLinks r = do
                 isLinkAndMixedStruct tO tgs = isTagOpenName "a" tO && any isTagText tgs
 
     return contents
+
+cleanup :: String -> String
+cleanup = unwords . words
