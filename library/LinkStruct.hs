@@ -25,11 +25,12 @@ instance Show LinkStruct where
     show (LinkStruct _ h t) = "[[" ++ h ++ "][" ++ t ++"]]"
 
 cleanup :: String -> String
-cleanup = unwords . words . stripChars "\n\r\t"
+cleanup = unwords . words . stripChars "\n\r\t" . dequote
 
 stripChars :: String -> String -> String
 stripChars = filter . flip notElem
 
 dequote :: String -> String
 dequote ('\"':xs) | last xs == '\"' = init xs
+dequote ('\"':xs) = xs
 dequote x = x
