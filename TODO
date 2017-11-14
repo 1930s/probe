@@ -8,10 +8,11 @@
 -- TODO: pick the next external URLs randomly (autoseeding)
 -- DONE: split this file because emacs is lagging
 -- DONE: add "error only" option in args
--- NOPE: move LinkStuct validation (goodStruct) to the data itself
+-- DONE: move LinkStuct cleanup to the data itself
 -- TODO: add support for multiple files in --files options
--- NOPE: move the LinkStruct check automatically in the creation
 -- TODO: better guess in extractLinks: how to pick the right text
 -- TODO: cleanup the LinkText
 -- TODO: pasteBin
 -- DONE: print also goodLinks
+-- NOPE: move LinkStuct validation (goodStruct) to the data itself
+-- NOPE: move the LinkStruct check automatically in the creation
