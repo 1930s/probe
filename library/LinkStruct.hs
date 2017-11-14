@@ -26,7 +26,7 @@ linkStructSimple :: String -> String -> LinkStruct
 linkStructSimple = linkStruct 0
 
 instance Show LinkStruct where
-    show (LinkStruct _ h t) = "[[" ++ h ++ "][" ++ t ++"]]"
+    show (LinkStruct i h t) = "[" ++ show i ++ "]:[[" ++ h ++ "][" ++ t ++"]]"
 
 cleanup :: String -> String
 cleanup = unwords . words . stripChars "\n\r\t" . dequote
