@@ -67,13 +67,4 @@ extractLinks r = do
                                 (fromTagText (fromJust (find isTagText tgs)))
                 f raw _ = "ERROR: cannot parse " ++ show raw
 
-                isBasicStruct :: Tag String -> Tag String -> Tag String -> Bool
-                isBasicStruct tO tT tC = isTagOpenName "a" tO && isTagText tT && isTagCloseName "a" tC
-
-                isLinkAndImgStruct :: Tag String -> Tag String -> Bool
-                isLinkAndImgStruct tOa tOi = isTagOpenName "a" tOa && isTagOpenName "img" tOi
-
-                isLinkAndMixedStruct :: Tag String -> [Tag String] -> Bool
-                isLinkAndMixedStruct tO tgs = isTagOpenName "a" tO && any isTagText tgs
-
     return contents

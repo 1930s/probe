@@ -1,14 +1,18 @@
-
-module LinkStruct ( LinkStruct
-                  , linkStruct
+module LinkStruct ( linkStruct
                   , linkStructSimple
                   , index
                   , href
                   , text
+                  , isBasicStruct
+                  , isLinkAndImgStruct
+                  , isLinkAndMixedStruct
                   ) where
 
 -- https://hackage.haskell.org/package/base-4.10.0.0/docs/Control-Exception.html
 import Control.Exception ( assert )
+-- https://hackage.haskell.org/package/tagsoup
+-- https://github.com/ndmitchell/tagsoup
+import Text.HTML.TagSoup
 
 data LinkStruct = LinkStruct { index :: Int
                              , href :: String
@@ -34,3 +38,12 @@ dequote :: String -> String
 dequote ('\"':xs) | last xs == '\"' = init xs
 dequote ('\"':xs) = xs
 dequote x = x
+
+isBasicStruct :: Tag String -> Tag String -> Tag String -> Bool
+isBasicStruct tO tT tC = isTagOpenName "a" tO && isTagText tT && isTagCloseName "a" tC
+
+isLinkAndImgStruct :: Tag String -> Tag String -> Bool
+isLinkAndImgStruct tOa tOi = isTagOpenName "a" tOa && isTagOpenName "img" tOi
+
+isLinkAndMixedStruct :: Tag String -> [Tag String] -> Bool
+isLinkAndMixedStruct tO tgs = isTagOpenName "a" tO && any isTagText tgs
