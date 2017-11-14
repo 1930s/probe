@@ -39,6 +39,10 @@ extractTitles r = do
                 f = unwords . words . fromTagText
     return $ unwords contents
 
+-- | mapInd : map with index (as second argument of the function f)
+mapInd :: (a -> Int -> b) -> [a] -> [b]
+mapInd f l = zipWith f l [0..]
+
 extractLinks :: (Show body) => Response body -> IO [String]
 extractLinks r = do
     let tags = parseTags $ show (responseBody r)
