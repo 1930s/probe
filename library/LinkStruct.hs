@@ -31,7 +31,7 @@ instance Show LinkStruct where
     show (LinkStruct i h t) = "[" ++ show i ++ "]:[[" ++ h ++ "][" ++ t ++"]]"
 
 cleanup :: String -> String
-cleanup = dequote . replace "\\n" "" . dequote . show . stripChars "\r\t" . unwords . words
+cleanup = replace "\\" "" . replace "\\\"" "" . replace "\\n" "" . dequote . show . stripChars "\r\t" . unwords . words
 
 stripChars :: String -> String -> String
 stripChars = filter . flip notElem
