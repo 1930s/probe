@@ -10,6 +10,7 @@
 -- DONE: add "error only" option in args
 -- DONE: move LinkStuct cleanup to the data itself
 -- TODO: add support for multiple files in --files options
+-- TODO: add support for single link only (--link)
 -- TODO: better guess in extractLinks: how to pick the right text
 -- DONE: cleanup the LinkText
 -- TODO: pasteBin
