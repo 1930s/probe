@@ -39,37 +39,32 @@ extractTitles r = do
                 f = unwords . words . fromTagText
     return $ unwords contents
 
+-- | mapInd : map with index (as second argument of the function f)
+mapInd :: (a -> Int -> b) -> [a] -> [b]
+mapInd f l = zipWith f l [0..]
+
 extractLinks :: (Show body) => Response body -> IO [String]
 extractLinks r = do
     let tags = parseTags $ show (responseBody r)
-    let contents = map f $ linksFilter tags
-          where f :: [Tag String] -> String
-                f [tOpen, tText, tClose] | isBasicStruct tOpen tText tClose =
-                                           show $ linkStruct 0
-                                                (fromAttrib "href" tOpen)
-                                                (fromTagText tText)
-                f (tOpenA:tOpenImg:_rest) | isLinkAndImgStruct tOpenA tOpenImg =
-                                           show $ linkStruct 0
-                                                (fromAttrib "href" tOpenA)
-                                                (fromAttrib "alt" tOpenImg)
+    let contents = mapInd f (linksFilter tags)
+          where f :: [Tag String] -> Int -> String
+                f [tOpen, tText, tClose] i | isBasicStruct tOpen tText tClose =
+                                           show $ linkStruct i
+                                                  (fromAttrib "href" tOpen)
+                                                  (fromTagText tText)
+                f (tOpenA:tOpenImg:_rest) i | isLinkAndImgStruct tOpenA tOpenImg =
+                                            show $ linkStruct i
+                                                 (fromAttrib "href" tOpenA)
+                                                 (fromAttrib "alt" tOpenImg)
                 -- ViewPatterns
                 -- f (hd:(reverse -> (tl:_))) | isTagOpenName "a" hd && isTagText tl
                 -- Head&Last
                 -- f (h:tgs) | isTagOpenName "a" h && isTagText (last tgs) =
                 -- Finding a tagText
-                f (h:tgs) | isLinkAndMixedStruct h tgs =
-                        show $ linkStruct 0
-                             (fromAttrib "href" h)
-                             (fromTagText (fromJust (find isTagText tgs)))
-                f raw = "ERROR: cannot parse " ++ show raw
-
-                isBasicStruct :: Tag String -> Tag String -> Tag String -> Bool
-                isBasicStruct tO tT tC = isTagOpenName "a" tO && isTagText tT && isTagCloseName "a" tC
-
-                isLinkAndImgStruct :: Tag String -> Tag String -> Bool
-                isLinkAndImgStruct tOa tOi = isTagOpenName "a" tOa && isTagOpenName "img" tOi
-
-                isLinkAndMixedStruct :: Tag String -> [Tag String] -> Bool
-                isLinkAndMixedStruct tO tgs = isTagOpenName "a" tO && any isTagText tgs
+                f (h:tgs) i | isLinkAndMixedStruct h tgs =
+                            show $ linkStruct i
+                                (fromAttrib "href" h)
+                                (fromTagText (fromJust (find isTagText tgs)))
+                f raw _ = "ERROR: cannot parse " ++ show raw
 
     return contents

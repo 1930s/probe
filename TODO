@@ -1,5 +1,5 @@
--- TODO: add index to links in text
--- TODO: fix default index (0) in LinkStruct
+-- DONE: add index to links in text
+-- DONE: fix default index (0) in LinkStruct
 -- DONE: add more patterns (<a> with <img> and "alt" property inside)
 -- DONE: more comprehensive/relaxed patterns (randomly placed tagText, pick the first available)
 -- DONE: add the --errors option
@@ -10,6 +10,7 @@
 -- DONE: add "error only" option in args
 -- DONE: move LinkStuct cleanup to the data itself
 -- TODO: add support for multiple files in --files options
+-- TODO: add support for single link only (--link)
 -- TODO: better guess in extractLinks: how to pick the right text
 -- DONE: cleanup the LinkText
 -- TODO: pasteBin
