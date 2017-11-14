@@ -39,6 +39,7 @@ library
     , http-client-tls >= 0.3.5.1
     , http-conduit >= 2.2.3.2
     , http-types >= 0.9.1
+    , MissingH >= 1.4.0.1
     , mtl >= 2.2.1
     , network-uri >= 2.6.1.0
     , regex-posix >= 0.95.2

@@ -54,6 +54,9 @@ library:
     - http-conduit >= 2.2.3.2
     # https://hackage.haskell.org/package/http-types
     - http-types >= 0.9.1
+    # https://hackage.haskell.org/package/MissingH
+    # https://hackage.haskell.org/package/MissingH-1.4.0.1/docs/Data-String-Utils.html
+    - MissingH >= 1.4.0.1
     # https://hackage.haskell.org/package/mtl
     # https://github.com/haskell/mtl
     - mtl >= 2.2.1
