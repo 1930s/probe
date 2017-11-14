@@ -13,6 +13,8 @@ import Control.Exception ( assert )
 -- https://hackage.haskell.org/package/tagsoup
 -- https://github.com/ndmitchell/tagsoup
 import Text.HTML.TagSoup
+-- https://hackage.haskell.org/package/MissingH-1.4.0.1/docs/Data-String-Utils.html
+import Data.String.Utils ( replace )
 
 data LinkStruct = LinkStruct { index :: Int
                              , href :: String
@@ -29,7 +31,7 @@ instance Show LinkStruct where
     show (LinkStruct i h t) = "[" ++ show i ++ "]:[[" ++ h ++ "][" ++ t ++"]]"
 
 cleanup :: String -> String
-cleanup = unwords . words . stripChars "\n\r\t" . dequote
+cleanup = dequote . replace "\\n" "" . dequote . show . stripChars "\r\t" . unwords . words
 
 stripChars :: String -> String -> String
 stripChars = filter . flip notElem
