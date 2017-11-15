@@ -39,6 +39,7 @@ stripChars = filter . flip notElem
 dequote :: String -> String
 dequote ('\"':xs) | last xs == '\"' = init xs
 dequote ('\"':xs) = xs
+dequote (' ':xs) = xs
 dequote x = x
 
 isBasicStruct :: Tag String -> Tag String -> Tag String -> Bool
