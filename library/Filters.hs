@@ -43,8 +43,8 @@ extractTitles r = do
 mapInd :: (a -> Int -> b) -> [a] -> [b]
 mapInd f l = zipWith f l [0..]
 
-extractLinks :: (Show body) => Response body -> IO [String]
-extractLinks r = do
+extractLinks :: (Show body) => String -> Response body -> IO [String]
+extractLinks _u r = do
     let tags = parseTags $ show (responseBody r)
     let contents = mapInd f (linksFilter tags)
           where f :: [Tag String] -> Int -> String
