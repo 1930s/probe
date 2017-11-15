@@ -57,7 +57,10 @@ dropSpaceTail maybeS (x:xs)
         | otherwise       = reverse maybeS ++ x : dropSpaceTail "" xs
 
 isAnExternalLink :: String -> Bool
-isAnExternalLink = (=~) ("https?://" :: String)
+isAnExternalLink = (=~) ("^https?://" :: String)
+
+isHrefWithProtocol :: Tag String -> Bool
+isHrefWithProtocol = isAnExternalLink . take 5 . fromAttrib "href"
 
 isBasicStruct :: Tag String -> Tag String -> Tag String -> Bool
 isBasicStruct tO tT tC = isTagOpenName "a" tO && isTagText tT && isTagCloseName "a" tC
