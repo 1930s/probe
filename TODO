@@ -4,6 +4,7 @@
 -- DONE: more comprehensive/relaxed patterns (randomly placed tagText, pick the first available)
 -- DONE: add the --errors option
 -- DONE: print only errors in parsing (use option)
+-- TODO: dequote the href when printing
 -- TODO: filter internal/external links
 -- TODO: pick the next external URLs randomly (autoseeding)
 -- DONE: split this file because emacs is lagging
