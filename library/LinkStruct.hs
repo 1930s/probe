@@ -63,10 +63,10 @@ isHrefWithProtocol :: Tag String -> Bool
 isHrefWithProtocol = isAnExternalLink . take 5 . fromAttrib "href"
 
 isBasicStruct :: Tag String -> Tag String -> Tag String -> Bool
-isBasicStruct tO tT tC = isTagOpenName "a" tO && isTagText tT && isTagCloseName "a" tC
+isBasicStruct tO tT tC = isTagOpenName "a" tO && isTagText tT && isTagCloseName "a" tC && isHrefWithProtocol tO
 
 isLinkAndImgStruct :: Tag String -> Tag String -> Bool
-isLinkAndImgStruct tOa tOi = isTagOpenName "a" tOa && isTagOpenName "img" tOi
+isLinkAndImgStruct tOa tOi = isTagOpenName "a" tOa && isTagOpenName "img" tOi && isHrefWithProtocol tOa
 
 isLinkAndMixedStruct :: Tag String -> [Tag String] -> Bool
-isLinkAndMixedStruct tO tgs = isTagOpenName "a" tO && any isTagText tgs
+isLinkAndMixedStruct tO tgs = isTagOpenName "a" tO && any isTagText tgs && isHrefWithProtocol tO
