@@ -13,6 +13,7 @@ import Control.Exception ( assert )
 -- https://hackage.haskell.org/package/tagsoup
 -- https://github.com/ndmitchell/tagsoup
 import Text.HTML.TagSoup
+import Data.Char
 -- https://hackage.haskell.org/package/MissingH-1.4.0.1/docs/Data-String-Utils.html
 import Data.String.Utils ( replace )
 
@@ -31,7 +32,7 @@ instance Show LinkStruct where
     show (LinkStruct i h t) = "[" ++ show i ++ "]:[[" ++ h ++ "][" ++ t ++"]]"
 
 cleanup :: String -> String
-cleanup = replace "\\" "" . replace "\\\"" "" . replace "\\n" "" . dequote . show . stripChars "\r\t" . unwords . words
+cleanup = trim . replace "\\" "" . replace "\\\"" "" . replace "\\n" "" . dequote . show . stripChars "\r\t" . unwords . words
 
 stripChars :: String -> String -> String
 stripChars = filter . flip notElem
@@ -39,8 +40,17 @@ stripChars = filter . flip notElem
 dequote :: String -> String
 dequote ('\"':xs) | last xs == '\"' = init xs
 dequote ('\"':xs) = xs
-dequote (' ':xs) = xs
 dequote x = x
+
+trim :: String -> String
+trim xs = dropSpaceTail "" $ dropWhile isSpace xs
+
+dropSpaceTail :: String -> String -> String
+dropSpaceTail _ "" = ""
+dropSpaceTail maybeS (x:xs)
+        | isSpace x = dropSpaceTail (x:maybeS) xs
+        | null maybeS = x : dropSpaceTail "" xs
+        | otherwise       = reverse maybeS ++ x : dropSpaceTail "" xs
 
 isBasicStruct :: Tag String -> Tag String -> Tag String -> Bool
 isBasicStruct tO tT tC = isTagOpenName "a" tO && isTagText tT && isTagCloseName "a" tC
