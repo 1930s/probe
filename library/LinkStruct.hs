@@ -16,10 +16,6 @@ import Text.HTML.TagSoup
 import Data.Char
 -- https://hackage.haskell.org/package/MissingH-1.4.0.1/docs/Data-String-Utils.html
 import Data.String.Utils ( replace )
--- https://hackage.haskell.org/package/regex-posix
--- https://hackage.haskell.org/package/regex-posix-0.95.2/docs/Text-Regex-Posix.html
--- https://wiki.haskell.org/Regex_Posix
-import Text.Regex.Posix
 
 data LinkStruct = LinkStruct { index :: Int
                              , href :: String
@@ -57,10 +53,17 @@ dropSpaceTail maybeS (x:xs)
         | otherwise       = reverse maybeS ++ x : dropSpaceTail "" xs
 
 isAnExternalLink :: String -> Bool
-isAnExternalLink = (=~) ("^https?://" :: String)
+-- To avoid:
+--  user error (Text.Regex.Posix.String died: (ReturnCode 14,"empty (sub)expression"))
+-- isAnExternalLink = (=~) ("https?://" :: String)
+-- https://hackage.haskell.org/package/regex-posix
+-- https://hackage.haskell.org/package/regex-posix-0.95.2/docs/Text-Regex-Posix.html
+-- https://wiki.haskell.org/Regex_Posix
+-- import Text.Regex.Posix
+isAnExternalLink s = "http" == take 4 s
 
 isHrefWithProtocol :: Tag String -> Bool
-isHrefWithProtocol = isAnExternalLink . take 5 . fromAttrib "href"
+isHrefWithProtocol = isAnExternalLink . take 4 . cleanup . fromAttrib "href"
 
 isBasicStruct :: Tag String -> Tag String -> Tag String -> Bool
 isBasicStruct tO tT tC = isTagOpenName "a" tO && isTagText tT && isTagCloseName "a" tC && isHrefWithProtocol tO
