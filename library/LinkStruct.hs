@@ -7,6 +7,7 @@ module LinkStruct ( linkStruct
                   , isBasicStruct
                   , isLinkAndImgStruct
                   , isLinkAndMixedStruct
+                  , linksToExternalFrom
                   ) where
 
 -- https://hackage.haskell.org/package/base-4.10.0.0/docs/Control-Exception.html
@@ -69,8 +70,6 @@ isAProperLink :: String -> Bool
 -- import Text.Regex.Posix
 isAProperLink s = "http" == take 4 s
 
-isAnExternalLink u = isInfixOf u
-
 isHrefWithProtocol :: Tag String -> Bool
 isHrefWithProtocol = isAProperLink . take 4 . cleanup . fromAttrib "href"
 
@@ -82,3 +81,9 @@ isLinkAndImgStruct tOa tOi = isTagOpenName "a" tOa && isTagOpenName "img" tOi &&
 
 isLinkAndMixedStruct :: Tag String -> [Tag String] -> Bool
 isLinkAndMixedStruct tO tgs = isTagOpenName "a" tO && any isTagText tgs && isHrefWithProtocol tO
+
+isAnExternalLink :: Eq a => [a] -> [a] -> Bool
+isAnExternalLink base fullURL = not $ isInfixOf base fullURL
+
+linksToExternalFrom :: Eq a => [a] -> [[a]] -> [[a]]
+linksToExternalFrom url = filter (isAnExternalLink url)
