@@ -83,8 +83,9 @@ main = do
     urls <- return (mapM_ (\s -> checkURLs s (optVerbose opts)) (optFiles opts))
     _ <- liftIO $ return $ runJob urls >> printJobState
     stats <- execJob urls (JobState S.empty 0 jobs)
-    runReaderT (printOrNot "enqueue 'please finish' messages") opts
-    atomically $ replicateM_ k (writeTChan jobs Done)
+    unless (optAuto opts) $ do
+        runReaderT (printOrNot "enqueue 'please finish' messages") opts
+        atomically $ replicateM_ k (writeTChan jobs Done)
     runReaderT (printOrNot "waiting for workers") opts
     waitFor workers
     broken <- atomically $ readTVar badCount
