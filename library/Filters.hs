@@ -46,7 +46,7 @@ mapInd f l = zipWith f l [0..]
 
 -- extractLinks :: (Show a, Show body) => a -> Response body -> IO [String]
 extractLinks :: (Show body) => String -> Response body -> Options -> IO [String]
-extractLinks u r _o = do
+extractLinks u r o = do
     let tags = parseTags $ show (responseBody r)
     let contents = mapInd f (linksFilter tags)
           where f :: [Tag String] -> Int -> LinkStruct
@@ -72,4 +72,6 @@ extractLinks u r _o = do
                               (show u)
                 f raw _ = brokenLinkStruct $ "ERROR: cannot parse " ++ show raw
 
-    return $ map show ( filter (isAnExternalLink u . show) contents )
+    if optErrors o then
+        return $ map show ( filter isBrokenStruct contents )
+    else return $ map show ( filter (isAnExternalLink u . show) contents )
