@@ -52,10 +52,12 @@ extractLinks u r = do
                                            show $ linkStruct i
                                                   (fromAttrib "href" tOpen)
                                                   (fromTagText tText)
+                                                  u
                 f (tOpenA:tOpenImg:_rest) i | isLinkAndImgStruct tOpenA tOpenImg =
                                             show $ linkStruct i
-                                                 (fromAttrib "href" tOpenA)
-                                                 (fromAttrib "alt" tOpenImg)
+                                                   (fromAttrib "href" tOpenA)
+                                                   (fromAttrib "alt" tOpenImg)
+                                                   u
                 -- ViewPatterns
                 -- f (hd:(reverse -> (tl:_))) | isTagOpenName "a" hd && isTagText tl
                 -- Head&Last
@@ -63,8 +65,9 @@ extractLinks u r = do
                 -- Finding a tagText
                 f (h:tgs) i | isLinkAndMixedStruct h tgs =
                             show $ linkStruct i
-                                (fromAttrib "href" h)
-                                (fromTagText (fromJust (find isTagText tgs)))
+                                   (fromAttrib "href" h)
+                                   (fromTagText (fromJust (find isTagText tgs)))
+                                   u
                 f raw _ = "ERROR: cannot parse " ++ show raw
 
-    return $ linksToExternalFrom u contents
+    return contents
