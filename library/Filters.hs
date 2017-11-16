@@ -74,4 +74,6 @@ extractLinks u r o = do
 
     if optErrors o then
         return $ map show ( filter isBrokenStruct contents )
-    else return $ map show ( filter (isAnExternalLink u . show) ( filter (not . isBrokenStruct) contents ))
+    else if optExternal o then
+        return $ map show ( filter (isAnExternalLink u . show) ( filter (not . isBrokenStruct) contents ))
+    else return $ map show ( filter (not . isBrokenStruct) contents )
