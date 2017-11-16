@@ -1,5 +1,6 @@
 module Filters where
 
+import Options
 import LinkStruct
 
 -- http://hackage.haskell.org/package/base-4.10.0.0/docs/Data-Maybe.html#v:fromJust
@@ -39,37 +40,40 @@ extractTitles r = do
                 f = unwords . words . fromTagText
     return $ unwords contents
 
-extractLinks :: (Show body) => Response body -> IO [String]
-extractLinks r = do
+-- | mapInd : map with index (as second argument of the function f)
+mapInd :: (a -> Int -> b) -> [a] -> [b]
+mapInd f l = zipWith f l [0..]
+
+-- extractLinks :: (Show a, Show body) => a -> Response body -> IO [String]
+extractLinks :: (Show body) => String -> Response body -> Options -> IO [String]
+extractLinks u r o = do
     let tags = parseTags $ show (responseBody r)
-    let contents = map f $ linksFilter tags
-          where f :: [Tag String] -> String
-                f [tOpen, tText, tClose] | isBasicStruct tOpen tText tClose =
-                                           show $ linkStruct 0
-                                                (fromAttrib "href" tOpen)
-                                                (fromTagText tText)
-                f (tOpenA:tOpenImg:_rest) | isLinkAndImgStruct tOpenA tOpenImg =
-                                           show $ linkStruct 0
-                                                (fromAttrib "href" tOpenA)
-                                                (fromAttrib "alt" tOpenImg)
+    let contents = mapInd f (linksFilter tags)
+          where f :: [Tag String] -> Int -> LinkStruct
+                f [tOpen, tText, tClose] i | isBasicStruct tOpen tText tClose =
+                                             linkStruct i
+                                             (fromAttrib "href" tOpen)
+                                             (fromTagText tText)
+                                             (show u)
+                f (tOpenA:tOpenImg:_rest) i | isLinkAndImgStruct tOpenA tOpenImg =
+                                              linkStruct i
+                                              (fromAttrib "href" tOpenA)
+                                              (fromAttrib "alt" tOpenImg)
+                                              (show u)
                 -- ViewPatterns
                 -- f (hd:(reverse -> (tl:_))) | isTagOpenName "a" hd && isTagText tl
                 -- Head&Last
                 -- f (h:tgs) | isTagOpenName "a" h && isTagText (last tgs) =
                 -- Finding a tagText
-                f (h:tgs) | isLinkAndMixedStruct h tgs =
-                        show $ linkStruct 0
-                             (fromAttrib "href" h)
-                             (fromTagText (fromJust (find isTagText tgs)))
-                f raw = "ERROR: cannot parse " ++ show raw
+                f (h:tgs) i | isLinkAndMixedStruct h tgs =
+                              linkStruct i
+                              (fromAttrib "href" h)
+                              (fromTagText (fromJust (find isTagText tgs)))
+                              (show u)
+                f raw _ = brokenLinkStruct $ "ERROR: cannot parse " ++ show raw
 
-                isBasicStruct :: Tag String -> Tag String -> Tag String -> Bool
-                isBasicStruct tO tT tC = isTagOpenName "a" tO && isTagText tT && isTagCloseName "a" tC
-
-                isLinkAndImgStruct :: Tag String -> Tag String -> Bool
-                isLinkAndImgStruct tOa tOi = isTagOpenName "a" tOa && isTagOpenName "img" tOi
-
-                isLinkAndMixedStruct :: Tag String -> [Tag String] -> Bool
-                isLinkAndMixedStruct tO tgs = isTagOpenName "a" tO && any isTagText tgs
-
-    return contents
+    if optErrors o then
+        return $ map show ( filter isBrokenStruct contents )
+    else if optExternal o then
+        return $ map show ( filter (isAnExternalLink u . show) ( filter (not . isBrokenStruct) contents ))
+    else return $ map show ( filter (not . isBrokenStruct) contents )
