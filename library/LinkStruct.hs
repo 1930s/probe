@@ -89,7 +89,10 @@ isLinkAndMixedStruct :: Tag String -> [Tag String] -> Bool
 isLinkAndMixedStruct tO tgs = isTagOpenName "a" tO && any isTagText tgs && isHrefWithProtocol tO
 
 isAnExternalLink :: Eq a => [a] -> [a] -> Bool
-isAnExternalLink base fullURL = not $ isInfixOf base fullURL
+isAnExternalLink base fullURL = not $ isAnInternalLink base fullURL
+
+isAnInternalLink :: Eq a => [a] -> [a] -> Bool
+isAnInternalLink = isInfixOf
 
 -- | Naive filter, there is no purpose to be accurate
 linksToExternalFrom :: Eq a => [a] -> [[a]] -> [[a]]
