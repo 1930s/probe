@@ -3,6 +3,7 @@ module LinkStruct ( linkStruct
                   , index
                   , href
                   , text
+                  , source
                   , isBasicStruct
                   , isLinkAndImgStruct
                   , isLinkAndMixedStruct
@@ -25,16 +26,17 @@ import GHC.OldList ( isInfixOf )
 data LinkStruct = LinkStruct { index :: Int
                              , href :: String
                              , text :: String
+                             , source :: String
                              }
 
-linkStruct :: Int -> String -> String -> LinkStruct
-linkStruct i h t = assert (i >= 0) $ LinkStruct i (cleanup h) (cleanup t)
+linkStruct :: Int -> String -> String -> String -> LinkStruct
+linkStruct i h t s = assert (i >= 0) $ LinkStruct i (cleanup h) (cleanup t) s
 
-linkStructSimple :: String -> String -> LinkStruct
+linkStructSimple :: String -> String -> String -> LinkStruct
 linkStructSimple = linkStruct 0
 
 instance Show LinkStruct where
-    show (LinkStruct i h t) = "[" ++ show i ++ "]:[[" ++ h ++ "][" ++ t ++"]]"
+    show (LinkStruct i h t _) = "[" ++ show i ++ "]:[[" ++ h ++ "][" ++ t ++"]]"
 
 cleanup :: String -> String
 cleanup = trim . replace "\\" "" . replace "\\\"" "" . replace "\\n" "" . dequote . show . stripChars "\r\t" . unwords . words
