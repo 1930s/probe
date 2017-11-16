@@ -70,4 +70,4 @@ extractLinks u r = do
                               (show u)
                 f raw _ = brokenLinkStruct $ "ERROR: cannot parse " ++ show raw
 
-    return $ map show contents
+    return $ map show ( filter (isAnExternalLink (show u) . show) contents )
