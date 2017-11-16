@@ -1,5 +1,6 @@
 module Filters where
 
+import Options
 import LinkStruct
 
 -- http://hackage.haskell.org/package/base-4.10.0.0/docs/Data-Maybe.html#v:fromJust
@@ -44,8 +45,8 @@ mapInd :: (a -> Int -> b) -> [a] -> [b]
 mapInd f l = zipWith f l [0..]
 
 -- extractLinks :: (Show a, Show body) => a -> Response body -> IO [String]
-extractLinks :: (Show body) => String -> Response body -> IO [String]
-extractLinks u r = do
+extractLinks :: (Show body) => String -> Response body -> Options -> IO [String]
+extractLinks u r _o = do
     let tags = parseTags $ show (responseBody r)
     let contents = mapInd f (linksFilter tags)
           where f :: [Tag String] -> Int -> LinkStruct
