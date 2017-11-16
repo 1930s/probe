@@ -18,6 +18,7 @@ import System.Exit ( exitSuccess
 data Options = Options  { optFiles :: [String]
                         , optVerbose :: Bool
                         , optErrors :: Bool
+                        , optExternal :: Bool
                         , optWorkers :: IO Int
                         , optOutput :: String -> IO ()
                         }
@@ -26,6 +27,7 @@ startOptions :: Options
 startOptions = Options  { optFiles = []
                         , optVerbose = False
                         , optErrors = False
+                        , optExternal = False
                         , optWorkers = return 8
                         , optOutput = putStr
                         }
@@ -54,6 +56,9 @@ options = [ Option "o" ["output"]
           , Option "e" ["errors"]
               (NoArg (\opt -> return opt { optErrors = True }))
               "Print only error messages"
+          , Option "x" ["external"]
+              (NoArg (\opt -> return opt { optExternal = True }))
+              "Print only externals links (naive)"
           , Option "v" ["verbose"]
               (NoArg (\opt -> return opt { optVerbose = True }))
               "Enable verbose messages"
