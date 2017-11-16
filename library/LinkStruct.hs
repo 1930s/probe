@@ -9,6 +9,8 @@ module LinkStruct ( LinkStruct()
                   , isBasicStruct
                   , isLinkAndImgStruct
                   , isLinkAndMixedStruct
+                  , isAnExternalLink
+                  , isAnInternalLink
                   , linksToExternalFrom
                   ) where
 
@@ -88,12 +90,15 @@ isLinkAndImgStruct tOa tOi = isTagOpenName "a" tOa && isTagOpenName "img" tOi &&
 isLinkAndMixedStruct :: Tag String -> [Tag String] -> Bool
 isLinkAndMixedStruct tO tgs = isTagOpenName "a" tO && any isTagText tgs && isHrefWithProtocol tO
 
-isAnExternalLink :: Eq a => [a] -> [a] -> Bool
+-- isAnExternalLink :: Eq a => [a] -> [a] -> Bool
+isAnExternalLink :: String -> String -> Bool
 isAnExternalLink base fullURL = not $ isAnInternalLink base fullURL
 
-isAnInternalLink :: Eq a => [a] -> [a] -> Bool
-isAnInternalLink = isInfixOf
+-- isAnInternalLink :: Eq a => [a] -> [a] -> Bool
+isAnInternalLink :: String -> String -> Bool
+isAnInternalLink = isInfixOf . dequote
 
 -- | Naive filter, there is no purpose to be accurate
-linksToExternalFrom :: Eq a => [a] -> [[a]] -> [[a]]
+-- linksToExternalFrom :: Eq a => [a] -> [[a]] -> [[a]]
+linksToExternalFrom :: String -> [String] -> [String]
 linksToExternalFrom url = filter (isAnExternalLink url)
