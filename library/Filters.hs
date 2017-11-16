@@ -43,7 +43,7 @@ extractTitles r = do
 mapInd :: (a -> Int -> b) -> [a] -> [b]
 mapInd f l = zipWith f l [0..]
 
-extractLinks :: (Show body) => String -> Response body -> IO [String]
+extractLinks :: (Show a, Show body) => a -> Response body -> IO [String]
 extractLinks u r = do
     let tags = parseTags $ show (responseBody r)
     let contents = mapInd f (linksFilter tags)
@@ -52,12 +52,12 @@ extractLinks u r = do
                                            show $ linkStruct i
                                                   (fromAttrib "href" tOpen)
                                                   (fromTagText tText)
-                                                  u
+                                                  (show u)
                 f (tOpenA:tOpenImg:_rest) i | isLinkAndImgStruct tOpenA tOpenImg =
                                             show $ linkStruct i
                                                    (fromAttrib "href" tOpenA)
                                                    (fromAttrib "alt" tOpenImg)
-                                                   u
+                                                   (show u)
                 -- ViewPatterns
                 -- f (hd:(reverse -> (tl:_))) | isTagOpenName "a" hd && isTagText tl
                 -- Head&Last
@@ -67,7 +67,7 @@ extractLinks u r = do
                             show $ linkStruct i
                                    (fromAttrib "href" h)
                                    (fromTagText (fromJust (find isTagText tgs)))
-                                   u
+                                   (show u)
                 f raw _ = "ERROR: cannot parse " ++ show raw
 
     return contents
