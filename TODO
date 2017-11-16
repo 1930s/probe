@@ -7,7 +7,7 @@
 -- DONE: dequote the href when printing
 -- DONE: filter internal/external links (naive, no consideration of subdomains, just RegEx)
 -- DONE: print the errors _only_ if there is the error flag set
--- TODO: add an option to turn on/off the external links filter
+-- DONE: add an option to turn on/off the external links filter
 -- TODO: pick the next external URLs randomly (autoseeding)
 -- DONE: split this file because emacs is lagging
 -- DONE: add "error only" option in args
@@ -15,6 +15,7 @@
 -- TODO: add support for multiple files in --files options
 -- TODO: add support for single link only (--link)
 -- TODO: better guess in extractLinks: how to pick the right text
+-- TODO: proper check for external links: use URI and subdomains
 -- DONE: cleanup the LinkText
 -- NOPE: pasteBin
 -- DONE: print also goodLinks
