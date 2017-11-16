@@ -1,5 +1,7 @@
-module LinkStruct ( linkStruct
+module LinkStruct ( LinkStruct()
+                  , linkStruct
                   , linkStructSimple
+                  , brokenLinkStruct
                   , index
                   , href
                   , text
@@ -28,7 +30,7 @@ data LinkStruct = LinkStruct { index :: Int
                              , href :: String
                              , text :: String
                              , source :: String
-                             }
+                             } | BrokenLinkStruct { _sBroken :: String }
 
 linkStruct :: Int -> String -> String -> String -> LinkStruct
 linkStruct i h t s = assert (i >= 0) $ LinkStruct i (cleanup h) (cleanup t) s
@@ -36,8 +38,12 @@ linkStruct i h t s = assert (i >= 0) $ LinkStruct i (cleanup h) (cleanup t) s
 linkStructSimple :: String -> String -> String -> LinkStruct
 linkStructSimple = linkStruct 0
 
+brokenLinkStruct :: String -> LinkStruct
+brokenLinkStruct = BrokenLinkStruct
+
 instance Show LinkStruct where
     show (LinkStruct i h t _) = "[" ++ show i ++ "]:[[" ++ h ++ "][" ++ t ++"]]"
+    show (BrokenLinkStruct s) = s
 
 cleanup :: String -> String
 cleanup = trim . replace "\\" "" . replace "\\\"" "" . replace "\\n" "" . dequote . show . stripChars "\r\t" . unwords . words
