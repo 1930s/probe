@@ -180,7 +180,7 @@ rightWithBody r u n o =
         4 -> return $ Left "ERROR: 4** nope"
         5 -> return $ Left "ERROR: 5** dead"
         _ -> do
-            extractLinks u r >>= \tl -> printLinksOrgMode u r tl o
+            extractLinks (show u) r >>= \tl -> printLinksOrgMode u r tl o
             extractTitles r >>= \ts -> do
                 maybePrintSomething u (getServer r) (getContentLength r) (destroyCookieJar (responseCookieJar r)) (Just ts) o
                 return $ Right (serverLine u (getServer r) (Just ts))

@@ -43,7 +43,8 @@ extractTitles r = do
 mapInd :: (a -> Int -> b) -> [a] -> [b]
 mapInd f l = zipWith f l [0..]
 
-extractLinks :: (Show a, Show body) => a -> Response body -> IO [String]
+-- extractLinks :: (Show a, Show body) => a -> Response body -> IO [String]
+extractLinks :: (Show body) => String -> Response body -> IO [String]
 extractLinks u r = do
     let tags = parseTags $ show (responseBody r)
     let contents = mapInd f (linksFilter tags)
@@ -70,4 +71,4 @@ extractLinks u r = do
                               (show u)
                 f raw _ = brokenLinkStruct $ "ERROR: cannot parse " ++ show raw
 
-    return $ map show ( filter (isAnExternalLink (show u) . show) contents )
+    return $ map show ( filter (isAnExternalLink u . show) contents )
