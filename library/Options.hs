@@ -18,6 +18,7 @@ import System.Exit ( exitSuccess
 data Options = Options  { optFiles :: [String]
                         , optVerbose :: Bool
                         , optErrors :: Bool
+                        , optExternal :: Bool
                         , optWorkers :: IO Int
                         , optOutput :: String -> IO ()
                         }
@@ -26,6 +27,7 @@ startOptions :: Options
 startOptions = Options  { optFiles = []
                         , optVerbose = False
                         , optErrors = False
+                        , optExternal = False
                         , optWorkers = return 8
                         , optOutput = putStr
                         }
@@ -38,10 +40,14 @@ parseArgs = do
     let Options { optFiles = files
                 , optVerbose = verbose
                 , optWorkers = workers
+                , optErrors = errors
+                , optExternal = external
                 , optOutput = _output } = opts
-    when verbose (hPutStrLn stderr "Hey!")
-    when verbose (hPutStrLn stderr $ "files are: " ++ show files)
-    when verbose (workers >>= \w -> hPutStrLn stderr $ "workers are: " ++ show w)
+    when verbose (hPutStrLn stderr $ "Verbose is " ++ show verbose)
+    when verbose (hPutStrLn stderr $ "Only errors is " ++ show errors)
+    when verbose (hPutStrLn stderr $ "Only external is " ++ show external)
+    when verbose (hPutStrLn stderr $ "Files are: " ++ show files)
+    when verbose (workers >>= \w -> hPutStrLn stderr $ "Workers are: " ++ show w)
     return opts
 
 options :: [ OptDescr (Options -> IO Options) ]
@@ -54,6 +60,9 @@ options = [ Option "o" ["output"]
           , Option "e" ["errors"]
               (NoArg (\opt -> return opt { optErrors = True }))
               "Print only error messages"
+          , Option "x" ["external"]
+              (NoArg (\opt -> return opt { optExternal = True }))
+              "Print only externals links (naive)"
           , Option "v" ["verbose"]
               (NoArg (\opt -> return opt { optVerbose = True }))
               "Enable verbose messages"
