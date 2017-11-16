@@ -40,10 +40,14 @@ parseArgs = do
     let Options { optFiles = files
                 , optVerbose = verbose
                 , optWorkers = workers
+                , optErrors = errors
+                , optExternal = external
                 , optOutput = _output } = opts
-    when verbose (hPutStrLn stderr "Hey!")
-    when verbose (hPutStrLn stderr $ "files are: " ++ show files)
-    when verbose (workers >>= \w -> hPutStrLn stderr $ "workers are: " ++ show w)
+    when verbose (hPutStrLn stderr $ "Verbose is " ++ show verbose)
+    when verbose (hPutStrLn stderr $ "Only errors is " ++ show errors)
+    when verbose (hPutStrLn stderr $ "Only external is " ++ show external)
+    when verbose (hPutStrLn stderr $ "Files are: " ++ show files)
+    when verbose (workers >>= \w -> hPutStrLn stderr $ "Workers are: " ++ show w)
     return opts
 
 options :: [ OptDescr (Options -> IO Options) ]
