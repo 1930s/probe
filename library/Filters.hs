@@ -47,27 +47,27 @@ extractLinks :: (Show a, Show body) => a -> Response body -> IO [String]
 extractLinks u r = do
     let tags = parseTags $ show (responseBody r)
     let contents = mapInd f (linksFilter tags)
-          where f :: [Tag String] -> Int -> String
+          where f :: [Tag String] -> Int -> LinkStruct
                 f [tOpen, tText, tClose] i | isBasicStruct tOpen tText tClose =
-                                           show $ linkStruct i
-                                                  (fromAttrib "href" tOpen)
-                                                  (fromTagText tText)
-                                                  (show u)
+                                             linkStruct i
+                                             (fromAttrib "href" tOpen)
+                                             (fromTagText tText)
+                                             (show u)
                 f (tOpenA:tOpenImg:_rest) i | isLinkAndImgStruct tOpenA tOpenImg =
-                                            show $ linkStruct i
-                                                   (fromAttrib "href" tOpenA)
-                                                   (fromAttrib "alt" tOpenImg)
-                                                   (show u)
+                                              linkStruct i
+                                              (fromAttrib "href" tOpenA)
+                                              (fromAttrib "alt" tOpenImg)
+                                              (show u)
                 -- ViewPatterns
                 -- f (hd:(reverse -> (tl:_))) | isTagOpenName "a" hd && isTagText tl
                 -- Head&Last
                 -- f (h:tgs) | isTagOpenName "a" h && isTagText (last tgs) =
                 -- Finding a tagText
                 f (h:tgs) i | isLinkAndMixedStruct h tgs =
-                            show $ linkStruct i
-                                   (fromAttrib "href" h)
-                                   (fromTagText (fromJust (find isTagText tgs)))
-                                   (show u)
-                f raw _ = "ERROR: cannot parse " ++ show raw
+                              linkStruct i
+                              (fromAttrib "href" h)
+                              (fromTagText (fromJust (find isTagText tgs)))
+                              (show u)
+                f raw _ = brokenLinkStruct $ "ERROR: cannot parse " ++ show raw
 
-    return contents
+    return $ map show contents
