@@ -12,6 +12,7 @@ module LinkStruct ( LinkStruct()
                   , isAnExternalLink
                   , isAnInternalLink
                   , linksToExternalFrom
+                  , isBrokenStruct
                   ) where
 
 -- https://hackage.haskell.org/package/base-4.10.0.0/docs/Control-Exception.html
@@ -102,3 +103,7 @@ isAnInternalLink = isInfixOf . dequote
 -- linksToExternalFrom :: Eq a => [a] -> [[a]] -> [[a]]
 linksToExternalFrom :: String -> [String] -> [String]
 linksToExternalFrom url = filter (isAnExternalLink url)
+
+isBrokenStruct :: LinkStruct -> Bool
+isBrokenStruct (BrokenLinkStruct _ ) = True
+isBrokenStruct _ = False
