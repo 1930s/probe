@@ -58,7 +58,10 @@ import Network.HTTP.Client ( responseStatus
                            , responseCookieJar
                            )
 import Network.HTTP.Client.TLS
-
+-- https://hackage.haskell.org/package/base
+-- https://hackage.haskell.org/package/base-4.10.0.0/docs/Control-Monad.html
+-- when :: Applicative f => Bool -> f () -> f ()
+import Control.Monad ( when )
 -- http://hackage.haskell.org/package/http-types-0.9.1/docs/Network-HTTP-Types-Header.html#t:ResponseHeaders
 -- http://hackage.haskell.org/package/http-types-0.9.1/docs/Network-HTTP-Types-Header.html#t:Header
 import Network.HTTP.Types.Header
@@ -190,7 +193,12 @@ rightWithBody r u n o =
                     -- return $ Right (serverLine u (getServer r) (Just ts))
                 extractLinks (show u) r o >>= \tl -> do
                     printLinksOrgMode u r tl o
-                    pick tl >>= \next -> return $ Right next
+                    when (optVerbose o) $ do
+                      putStrLn "picking random url among"
+                      print tl
+                    if not (null tl) then
+                      pick tl >>= \next -> return $ Right next
+                    else return $ Left "no links"
 
 pick :: [a] -> IO a
 pick xs = fmap (xs !!) $ randomRIO (0, length xs - 1)
