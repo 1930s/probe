@@ -131,8 +131,10 @@ worker badLinks goodLinks jobQueue badCount opts = loop
             code <- runReaderT (getBodyE (show uri)) opts `catch` (\e -> return $ Left (show (e :: SomeException)))
             case code of
                 -- Right 200 -> return ()
-                Right n   -> atomically $ writeTChan goodLinks (show n)
-                Left err  -> report err
+                Right n -> do
+                    _ <- return $ sendURLAsJob (href n)
+                    atomically $ writeTChan goodLinks (show n)
+                Left err -> report err
         _ -> report "invalid URL"
         where report s = atomically $ do
                            modifyTVar_ badCount (+1)
