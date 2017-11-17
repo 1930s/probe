@@ -201,6 +201,7 @@ rightWithBody r u n o =
                     else return $ Left "no links"
 
 pick :: [a] -> IO a
+{-# ANN pick ("HLint: ignore Use <$>" :: String) #-}
 pick xs = fmap (xs !!) $ randomRIO (0, length xs - 1)
 
 getServer :: Response body -> Maybe BS.ByteString
