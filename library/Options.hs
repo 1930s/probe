@@ -78,7 +78,7 @@ options = [ Option "o" ["output"]
                "Number of concurrent connections (default 16)"
           , Option "V" ["version"]
               (NoArg (\_ -> do
-                      hPutStrLn stderr "Version 0.0.1"
+                      hPutStrLn stderr "Version 0.0.4"
                       exitSuccess))
               "Print version"
           , Option "h" ["help"]
