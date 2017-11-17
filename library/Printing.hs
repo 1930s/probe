@@ -3,6 +3,7 @@
 module Printing where
 
 import Options
+import LinkStruct
 
 -- https://hackage.haskell.org/package/bytestring
 -- https://hackage.haskell.org/package/bytestring-0.10.8.2/docs/Data-ByteString-Lazy.html
@@ -57,13 +58,13 @@ printGoodLinks c =
 -- | printLinksOrgMode
 -- Checking if the prefix contains "ERROR:" it's just a matter of checking the
 -- first 6 characters (take 6).
-printLinksOrgMode :: (Foldable t1) => t3 -> t2 -> t1 String -> Options -> IO ()
+printLinksOrgMode :: (Foldable t1) => t3 -> t2 -> t1 LinkStruct -> Options -> IO ()
 printLinksOrgMode _u _r tl o =
     mapM_ pf tl
-      where pf :: String -> IO ()
+      where pf :: LinkStruct -> IO ()
             pf s = if optErrors o
-                     then when (isError $ take 6 s) $ putStrLn s
-                   else putStrLn s
+                     then when (isError $ take 6 (show s)) $ print s
+                   else print s
 
 maybePrintSomething :: (Show a, MonadIO f) => a -> Maybe BS.ByteString -> Maybe BS.ByteString -> [Cookie] -> Maybe String -> Options -> f ()
 maybePrintSomething url serverHeader contentLengthHeder cookies title opts =

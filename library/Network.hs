@@ -10,6 +10,7 @@ import Options
 import Utils
 import Printing
 import Filters
+import LinkStruct
 
 -- https://hackage.haskell.org/package/mtl-2.2.1/docs/Control-Monad-Reader.html
 import Control.Monad.Reader
@@ -57,14 +58,19 @@ import Network.HTTP.Client ( responseStatus
                            , responseCookieJar
                            )
 import Network.HTTP.Client.TLS
-
+-- https://hackage.haskell.org/package/base
+-- https://hackage.haskell.org/package/base-4.10.0.0/docs/Control-Monad.html
+-- when :: Applicative f => Bool -> f () -> f ()
+import Control.Monad ( when )
 -- http://hackage.haskell.org/package/http-types-0.9.1/docs/Network-HTTP-Types-Header.html#t:ResponseHeaders
 -- http://hackage.haskell.org/package/http-types-0.9.1/docs/Network-HTTP-Types-Header.html#t:Header
 import Network.HTTP.Types.Header
 -- import qualified Network.HTTP.Client.TLS as T
 -- https://hackage.haskell.org/package/http-types
 import Network.HTTP.Types.Status (statusCode)
-
+-- https://github.com/haskell/random
+-- https://hackage.haskell.org/package/random
+import System.Random (randomRIO)
 -- http://hackage.haskell.org/package/bytestring-0.10.8.2/docs/Data-ByteString-Lazy-Char8.html#v:pack
 -- import qualified Data.ByteString.Lazy.Char8 as C
 -- http://hackage.haskell.org/package/bytestring-0.10.8.2/docs/Data-ByteString-Char8.html#v:pack
@@ -139,7 +145,7 @@ getStatusE s = do
   opts <- ask
   lift (runExceptT $ chaseStatus (5 :: Int) s opts)
 
-getBodyE :: String -> ReaderT Options IO (Either String String)
+getBodyE :: String -> ReaderT Options IO (Either String LinkStruct)
 getBodyE s = do
   opts <- ask
   lift (runExceptT $ chaseBody (5 :: Int) s opts)
@@ -152,7 +158,7 @@ chaseStatus n u o = do
         Left ll -> leftWithError ll
         Right r -> rightWithStatusCode r u n o
 
-chaseBody :: Int -> String -> Options -> ExceptT String IO String
+chaseBody :: Int -> String -> Options -> ExceptT String IO LinkStruct
 chaseBody 0 _ _ = throwError "too many redirects"
 chaseBody n u o = do
     when (optVerbose o) $ liftIO $ putStrLn ("chasing " ++ u ++ "..." :: String)
@@ -170,7 +176,7 @@ rightWithStatusCode r u n o = do
             runExceptT $ chaseStatus (n-1) (show url) o
         a -> return (Right a)
 
-rightWithBody :: (Show a, Show body) => Response body -> a -> Int -> Options -> IO (Either String String)
+rightWithBody :: (Show a, Show body) => Response body -> a -> Int -> Options -> IO (Either String LinkStruct)
 rightWithBody r u n o =
     case statusCode (responseStatus r) `div` 100 :: Int of
         3 -> do
@@ -180,10 +186,23 @@ rightWithBody r u n o =
         4 -> return $ Left "ERROR: 4** nope"
         5 -> return $ Left "ERROR: 5** dead"
         _ -> do
-            extractLinks (show u) r o >>= \tl -> printLinksOrgMode u r tl o
-            extractTitles r >>= \ts -> do
-                maybePrintSomething u (getServer r) (getContentLength r) (destroyCookieJar (responseCookieJar r)) (Just ts) o
-                return $ Right (serverLine u (getServer r) (Just ts))
+                extractTitles r >>= \ts -> do
+                    maybePrintSomething u (getServer r) (getContentLength r) (destroyCookieJar (responseCookieJar r)) (Just ts) o
+                    putStrLn (serverLine u (getServer r) (Just ts))
+                    -- to exit here with the serverLine
+                    -- return $ Right (serverLine u (getServer r) (Just ts))
+                extractLinks (show u) r o >>= \tl -> do
+                    printLinksOrgMode u r tl o
+                    when (optVerbose o) $ do
+                      putStrLn "picking random url among"
+                      print tl
+                    if not (null tl) then
+                      pick tl >>= \next -> return $ Right next
+                    else return $ Left "no links"
+
+pick :: [a] -> IO a
+{-# ANN pick ("HLint: ignore Use <$>" :: String) #-}
+pick xs = fmap (xs !!) $ randomRIO (0, length xs - 1)
 
 getServer :: Response body -> Maybe BS.ByteString
 getServer r = lookup hServer (responseHeaders r)

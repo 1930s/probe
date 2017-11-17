@@ -20,6 +20,7 @@ data Options = Options  { optFiles :: [String]
                         , optErrors :: Bool
                         , optExternal :: Bool
                         , optWorkers :: IO Int
+                        , optAuto :: Bool
                         , optOutput :: String -> IO ()
                         }
 
@@ -28,6 +29,7 @@ startOptions = Options  { optFiles = []
                         , optVerbose = False
                         , optErrors = False
                         , optExternal = False
+                        , optAuto = False
                         , optWorkers = return 8
                         , optOutput = putStr
                         }
@@ -42,10 +44,12 @@ parseArgs = do
                 , optWorkers = workers
                 , optErrors = errors
                 , optExternal = external
+                , optAuto = auto
                 , optOutput = _output } = opts
     when verbose (hPutStrLn stderr $ "Verbose is " ++ show verbose)
     when verbose (hPutStrLn stderr $ "Only errors is " ++ show errors)
     when verbose (hPutStrLn stderr $ "Only external is " ++ show external)
+    when verbose (hPutStrLn stderr $ "Auto seeding is " ++ show auto)
     when verbose (hPutStrLn stderr $ "Files are: " ++ show files)
     when verbose (workers >>= \w -> hPutStrLn stderr $ "Workers are: " ++ show w)
     return opts
@@ -57,6 +61,9 @@ options = [ Option "o" ["output"]
           , Option "f" ["files"]
               (ReqArg (\arg opt -> return opt { optFiles = [arg] }) "FILE")
               "Output file"
+          , Option "a" ["auto"]
+              (NoArg (\opt -> return opt { optAuto = True }))
+              "Enable auto seeding"
           , Option "e" ["errors"]
               (NoArg (\opt -> return opt { optErrors = True }))
               "Print only error messages"
