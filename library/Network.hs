@@ -10,6 +10,7 @@ import Options
 import Utils
 import Printing
 import Filters
+import LinkStruct
 
 -- https://hackage.haskell.org/package/mtl-2.2.1/docs/Control-Monad-Reader.html
 import Control.Monad.Reader
@@ -139,7 +140,7 @@ getStatusE s = do
   opts <- ask
   lift (runExceptT $ chaseStatus (5 :: Int) s opts)
 
-getBodyE :: String -> ReaderT Options IO (Either String String)
+getBodyE :: String -> ReaderT Options IO (Either String LinkStruct)
 getBodyE s = do
   opts <- ask
   lift (runExceptT $ chaseBody (5 :: Int) s opts)
@@ -152,7 +153,7 @@ chaseStatus n u o = do
         Left ll -> leftWithError ll
         Right r -> rightWithStatusCode r u n o
 
-chaseBody :: Int -> String -> Options -> ExceptT String IO String
+chaseBody :: Int -> String -> Options -> ExceptT String IO LinkStruct
 chaseBody 0 _ _ = throwError "too many redirects"
 chaseBody n u o = do
     when (optVerbose o) $ liftIO $ putStrLn ("chasing " ++ u ++ "..." :: String)
@@ -170,7 +171,7 @@ rightWithStatusCode r u n o = do
             runExceptT $ chaseStatus (n-1) (show url) o
         a -> return (Right a)
 
-rightWithBody :: (Show a, Show body) => Response body -> a -> Int -> Options -> IO (Either String String)
+rightWithBody :: (Show a, Show body) => Response body -> a -> Int -> Options -> IO (Either String LinkStruct)
 rightWithBody r u n o =
     case statusCode (responseStatus r) `div` 100 :: Int of
         3 -> do
