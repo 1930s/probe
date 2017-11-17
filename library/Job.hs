@@ -3,8 +3,9 @@
 module Job ( Job(..)
            , JobState(..)
            , URL
-           , Task
+           , Task(..)
            , execJob
+           , printJobState
            ) where
 
 -- http://hackage.haskell.org/package/containers
@@ -30,12 +31,12 @@ data JobState = JobState { linksSeen :: S.Set URL
                          , linkQueue :: TChan Task
                          }
 
--- printJobState :: StateT JobState IO ()
--- printJobState = do
---     liftIO $ putStrLn "printing JobState"
---     ls <- gets linksSeen
---     lf <- gets linksFound
---     liftIO (print $ "linksSeen: " ++ show ls ++ " linksFound: " ++ show lf)
+printJobState :: StateT JobState IO ()
+printJobState = do
+    liftIO $ putStrLn "printing JobState"
+    ls <- gets linksSeen
+    lf <- gets linksFound
+    liftIO (print $ "linksSeen: " ++ show ls ++ " linksFound: " ++ show lf)
 
 newtype Job a = Job { runJob :: StateT JobState IO a }
     deriving (Functor, Applicative, Monad, MonadState JobState, MonadIO)
