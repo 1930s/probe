@@ -3,7 +3,7 @@
 -- see: https://github.com/sol/hpack
 
 name:           probe
-version:        0.0.3
+version:        0.0.4
 synopsis:       Concurrent Workers
 description:    Probe is an Haskell implementation of Concurrent Workers
 category:       Concurrency
