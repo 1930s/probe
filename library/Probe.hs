@@ -132,7 +132,8 @@ worker badLinks goodLinks jobQueue badCount opts = loop
             case code of
                 -- Right 200 -> return ()
                 Right n -> do
-                    _ <- return $ sendURLAsJob (href n)
+                    putStrLn $ "pushing " ++ show (href n)
+                    sendURLAsJob n jobQueue
                     atomically $ writeTChan goodLinks (show n)
                 Left err -> report err
         _ -> report "invalid URL"
@@ -152,8 +153,8 @@ sendURLsAsJob urls = do
     filterM seenURI urls >>= sendJobs
     updateStats (length urls)
 
-sendURLAsJob :: String -> Job ()
-sendURLAsJob url = sendURLsAsJob [L8.pack url :: URL]
+sendURLAsJob :: LinkStruct -> TChan Task -> IO ()
+sendURLAsJob lStruct jobQueue = atomically $ writeTChan jobQueue (Check (L8.pack (href lStruct)))
 
 updateStats :: Int -> Job ()
 updateStats a = modify $ \s ->
