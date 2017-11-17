@@ -10,6 +10,7 @@ import Network
 import Options
 import Job
 import Printing
+import LinkStruct
 
 -- import Control.Arrow
 import Control.Concurrent ( forkIO
@@ -142,8 +143,15 @@ checkURLs f v = do
     when v $ liftIO $ putStrLn ("checkURLs from " ++ show f)
     src <- liftIO $ L8.readFile f
     let urls = parseLinks src
+    sendURLsAsJob urls
+
+sendURLsAsJob :: [URL] -> Job ()
+sendURLsAsJob urls = do
     filterM seenURI urls >>= sendJobs
     updateStats (length urls)
+
+sendURLAsJob :: String -> Job ()
+sendURLAsJob url = sendURLsAsJob [L8.pack url :: URL]
 
 updateStats :: Int -> Job ()
 updateStats a = modify $ \s ->
