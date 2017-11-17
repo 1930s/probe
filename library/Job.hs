@@ -1,6 +1,12 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
-module Job where
+module Job ( Job(..)
+           , JobState(..)
+           , URL
+           , Task(..)
+           , execJob
+           , printJobState
+           ) where
 
 -- http://hackage.haskell.org/package/containers
 -- http://hackage.haskell.org/package/containers-0.5.10.2/docs/Data-Set.html

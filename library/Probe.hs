@@ -10,6 +10,7 @@ import Network
 import Options
 import Job
 import Printing
+import LinkStruct
 
 -- import Control.Arrow
 import Control.Concurrent ( forkIO
@@ -83,8 +84,9 @@ main = do
     urls <- return (mapM_ (\s -> checkURLs s (optVerbose opts)) (optFiles opts))
     _ <- liftIO $ return $ runJob urls >> printJobState
     stats <- execJob urls (JobState S.empty 0 jobs)
-    runReaderT (printOrNot "enqueue 'please finish' messages") opts
-    atomically $ replicateM_ k (writeTChan jobs Done)
+    unless (optAuto opts) $ do
+        runReaderT (printOrNot "enqueue 'please finish' messages") opts
+        atomically $ replicateM_ k (writeTChan jobs Done)
     runReaderT (printOrNot "waiting for workers") opts
     waitFor workers
     broken <- atomically $ readTVar badCount
@@ -129,8 +131,11 @@ worker badLinks goodLinks jobQueue badCount opts = loop
             code <- runReaderT (getBodyE (show uri)) opts `catch` (\e -> return $ Left (show (e :: SomeException)))
             case code of
                 -- Right 200 -> return ()
-                Right n   -> atomically $ writeTChan goodLinks n
-                Left err  -> report err
+                Right n -> do
+                    putStrLn $ "pushing " ++ show (href n)
+                    sendURLAsJob n jobQueue
+                    atomically $ writeTChan goodLinks (show n)
+                Left err -> report err
         _ -> report "invalid URL"
         where report s = atomically $ do
                            modifyTVar_ badCount (+1)
@@ -141,8 +146,15 @@ checkURLs f v = do
     when v $ liftIO $ putStrLn ("checkURLs from " ++ show f)
     src <- liftIO $ L8.readFile f
     let urls = parseLinks src
+    sendURLsAsJob urls
+
+sendURLsAsJob :: [URL] -> Job ()
+sendURLsAsJob urls = do
     filterM seenURI urls >>= sendJobs
     updateStats (length urls)
+
+sendURLAsJob :: LinkStruct -> TChan Task -> IO ()
+sendURLAsJob lStruct jobQueue = atomically $ writeTChan jobQueue (Check (L8.pack (href lStruct)))
 
 updateStats :: Int -> Job ()
 updateStats a = modify $ \s ->

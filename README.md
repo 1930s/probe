@@ -11,6 +11,7 @@ The URL Checker: Concurrent URL checker
 probe
   -o FILE     --output=FILE          Output file
   -f FILE     --files=FILE           Output file
+  -a          --auto                 Enable auto seeding
   -e          --errors               Print only error messages
   -x          --external             Print only externals links (naive)
   -v          --verbose              Enable verbose messages
