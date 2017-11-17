@@ -65,7 +65,9 @@ import Network.HTTP.Types.Header
 -- import qualified Network.HTTP.Client.TLS as T
 -- https://hackage.haskell.org/package/http-types
 import Network.HTTP.Types.Status (statusCode)
-
+-- https://github.com/haskell/random
+-- https://hackage.haskell.org/package/random
+import System.Random (randomRIO)
 -- http://hackage.haskell.org/package/bytestring-0.10.8.2/docs/Data-ByteString-Lazy-Char8.html#v:pack
 -- import qualified Data.ByteString.Lazy.Char8 as C
 -- http://hackage.haskell.org/package/bytestring-0.10.8.2/docs/Data-ByteString-Char8.html#v:pack
@@ -190,6 +192,9 @@ rightWithBody r u n o =
                 printLinksOrgMode u r tl o
                 -- TODO: return a random URL
                 return $ Right (tl !! 3)
+
+pick :: [a] -> IO a
+pick xs = fmap (xs !!) $ randomRIO (0, length xs - 1)
 
 getServer :: Response body -> Maybe BS.ByteString
 getServer r = lookup hServer (responseHeaders r)
