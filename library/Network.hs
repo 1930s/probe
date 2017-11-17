@@ -183,15 +183,18 @@ rightWithBody r u n o =
         4 -> return $ Left "ERROR: 4** nope"
         5 -> return $ Left "ERROR: 5** dead"
         _ -> do
-            extractTitles r >>= \ts -> do
-                maybePrintSomething u (getServer r) (getContentLength r) (destroyCookieJar (responseCookieJar r)) (Just ts) o
-                putStrLn (serverLine u (getServer r) (Just ts))
-                -- to exit here with the serverLine
-                -- return $ Right (serverLine u (getServer r) (Just ts))
-            extractLinks (show u) r o >>= \tl -> do
-                printLinksOrgMode u r tl o
-                -- TODO: return a random URL
-                return $ Right (tl !! 3)
+                extractTitles r >>= \ts -> do
+                    maybePrintSomething u (getServer r) (getContentLength r) (destroyCookieJar (responseCookieJar r)) (Just ts) o
+                    putStrLn (serverLine u (getServer r) (Just ts))
+                    -- to exit here with the serverLine
+                    -- return $ Right (serverLine u (getServer r) (Just ts))
+                extractLinks (show u) r o >>= \tl -> do
+                    printLinksOrgMode u r tl o
+                    -- TODO: return a random URL
+                    putStrLn "\n\n\n\n"
+                    print tl
+                    putStrLn "\n\n\n\n"
+                    pick tl >>= \next -> return $ Right next
 
 pick :: [a] -> IO a
 pick xs = fmap (xs !!) $ randomRIO (0, length xs - 1)
