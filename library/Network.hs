@@ -190,10 +190,6 @@ rightWithBody r u n o =
                     -- return $ Right (serverLine u (getServer r) (Just ts))
                 extractLinks (show u) r o >>= \tl -> do
                     printLinksOrgMode u r tl o
-                    -- TODO: return a random URL
-                    putStrLn "\n\n\n\n"
-                    print tl
-                    putStrLn "\n\n\n\n"
                     pick tl >>= \next -> return $ Right next
 
 pick :: [a] -> IO a
