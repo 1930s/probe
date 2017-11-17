@@ -180,13 +180,15 @@ rightWithBody r u n o =
         4 -> return $ Left "ERROR: 4** nope"
         5 -> return $ Left "ERROR: 5** dead"
         _ -> do
-            extractLinks (show u) r o >>= \tl -> printLinksOrgMode u r tl o
-                -- TODO: return a random URL
-                -- return $ Right (tl !! 3)
             extractTitles r >>= \ts -> do
                 maybePrintSomething u (getServer r) (getContentLength r) (destroyCookieJar (responseCookieJar r)) (Just ts) o
+                putStrLn (serverLine u (getServer r) (Just ts))
                 -- to exit here with the serverLine
-                return $ Right (serverLine u (getServer r) (Just ts))
+                -- return $ Right (serverLine u (getServer r) (Just ts))
+            extractLinks (show u) r o >>= \tl -> do
+                printLinksOrgMode u r tl o
+                -- TODO: return a random URL
+                return $ Right (tl !! 3)
 
 getServer :: Response body -> Maybe BS.ByteString
 getServer r = lookup hServer (responseHeaders r)
